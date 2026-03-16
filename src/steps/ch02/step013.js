@@ -1,4 +1,6 @@
 /** Step 13: Running the 1D simulation — the animation loop. */
+import * as d3 from 'd3'
+
 export default {
   title: '1D Animation Loop',
   chapter: 2,
@@ -27,7 +29,6 @@ animate()
 </code></pre></div>`,
   init(container) {
     // Add D3 timeline diagram first
-    import('d3').then(d3 => {
       const svg = d3.select(container)
         .append('svg')
         .attr('id', 'd3-sim')
@@ -115,7 +116,6 @@ animate()
         .append('path')
         .attr('d', 'M 0 0 L 10 3 L 0 6 z')
         .attr('fill', '#666')
-    })
 
     // Keep existing text panel below
     const el = document.createElement('div')

@@ -1,6 +1,8 @@
 /**
  * Step 11: 1D finite-difference Laplacian.
  */
+import * as d3 from 'd3'
+
 export default {
   title: '1D Finite-Difference Laplacian',
   chapter: 2,
@@ -65,8 +67,7 @@ computeLaplacian(v, lapV, N)
 
   init(container) {
     // Add D3 visualization first
-    import('d3').then(d3 => {
-      const svg = d3.select(container)
+    const svg = d3.select(container)
         .append('svg')
         .attr('id', 'd3-sim')
         .attr('width', 500)
@@ -149,7 +150,6 @@ computeLaplacian(v, lapV, N)
           .attr('font-size', '10px')
           .text(i)
       })
-    })
 
     // Keep existing text panel below
     const div = document.createElement('div')
