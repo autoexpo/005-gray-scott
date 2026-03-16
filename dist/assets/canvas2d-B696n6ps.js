@@ -1,0 +1,1 @@
+var e=512;function t(t,n=!0,r=null){let i=document.createElement(`canvas`);return i.width=e,i.height=e,i.id=`canvas2d-sim`,i.style.cssText=`display:block; width:${e}px; height:${e}px; margin:auto; margin-top:20px`,n&&(i.style.imageRendering=`pixelated`,i.style.imageRendering=`crisp-edges`),t.appendChild(i),{canvas:i,resize:()=>{},disconnect:()=>{}}}export{t};
