@@ -1,0 +1,354 @@
+/* Gray-Scott Course — SF Mono, 10pt, black & white */
+
+@font-face {
+  font-family: 'SF Mono';
+  src: local('SF Mono'), local('SFMono-Regular');
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --font: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', monospace;
+  --size: 10pt;
+  --bg: #fff;
+  --fg: #000;
+  --border: #000;
+  --muted: #666;
+  --header-h: 36px;
+  --col-border: 1px solid #000;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: var(--size);
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+#header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  border-bottom: var(--col-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  background: var(--bg);
+  z-index: 100;
+}
+
+#course-title {
+  font-size: 10pt;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+#nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#nav-controls button {
+  font-family: var(--font);
+  font-size: 10pt;
+  background: var(--bg);
+  border: var(--col-border);
+  cursor: pointer;
+  padding: 1px 8px;
+  line-height: 1.4;
+}
+
+#nav-controls button:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+#nav-controls button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+#step-indicator {
+  font-size: 10pt;
+  min-width: 52px;
+  text-align: center;
+}
+
+#progress-bar {
+  flex: 1;
+  height: 2px;
+  background: #ddd;
+  position: relative;
+}
+
+#progress-fill {
+  height: 100%;
+  background: var(--fg);
+  transition: width 0.2s;
+  width: 1%;
+}
+
+#step-title-display {
+  font-size: 10pt;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+/* ── Three columns ── */
+#app {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: calc(100vh - var(--header-h));
+  margin-top: var(--header-h);
+  overflow: hidden;
+}
+
+.col {
+  border-right: var(--col-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.col:last-child {
+  border-right: none;
+  overflow: hidden;
+}
+
+/* ── Math column ── */
+#math-content {
+  padding: 16px;
+}
+
+.math-section {
+  margin-bottom: 20px;
+}
+
+.math-section h3 {
+  font-size: 10pt;
+  font-weight: bold;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+}
+
+.math-section p {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.math-block {
+  display: block;
+  margin: 10px 0;
+  overflow-x: auto;
+  padding: 6px 0;
+}
+
+.math-label {
+  font-size: 9pt;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* KaTeX overrides */
+.katex {
+  font-size: 11pt !important;
+}
+
+.katex-display {
+  margin: 8px 0 !important;
+}
+
+/* ── Code column ── */
+#code-content {
+  padding: 16px;
+}
+
+.code-section {
+  margin-bottom: 20px;
+}
+
+.code-section h3 {
+  font-size: 10pt;
+  font-weight: bold;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+}
+
+.code-section .filename {
+  font-size: 9pt;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+pre {
+  background: var(--bg);
+  border: var(--col-border);
+  padding: 10px;
+  overflow-x: auto;
+  font-family: var(--font);
+  font-size: 9pt;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+code {
+  font-family: var(--font);
+  font-size: 9pt;
+}
+
+/* Minimal syntax highlight — black only, bold for keywords */
+.hljs-keyword, .hljs-built_in { font-weight: bold; }
+.hljs-string { font-style: italic; }
+.hljs-comment { color: var(--muted); }
+.hljs-number { }
+.hljs-title, .hljs-function { font-weight: bold; }
+
+/* ── Viz column ── */
+#col-viz {
+  position: relative;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+#viz-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#viz-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Stats.js override to stay in top-left of viz column */
+#viz-container > .stats {
+  position: absolute !important;
+  top: 4px !important;
+  left: 4px !important;
+}
+
+/* lil-gui override */
+.lil-gui {
+  --font-family: var(--font) !important;
+  --font-size: 9pt !important;
+  --background-color: #fff !important;
+  --text-color: #000 !important;
+  --title-background-color: #000 !important;
+  --title-text-color: #fff !important;
+  --widget-color: #f0f0f0 !important;
+  --hover-color: #e0e0e0 !important;
+  --focus-color: #ddd !important;
+  --number-color: #000 !important;
+  --string-color: #000 !important;
+  --slider-knob-color: #000 !important;
+  --slider-input-color: #fff !important;
+  --slider-input-text-color: #000 !important;
+  --checkbox-color: #000 !important;
+  position: absolute !important;
+  top: 4px !important;
+  right: 4px !important;
+  max-height: calc(100% - 8px) !important;
+  overflow-y: auto !important;
+  border: 1px solid #000 !important;
+}
+
+/* ── Misc utilities ── */
+.muted { color: var(--muted); }
+.bold { font-weight: bold; }
+
+.note {
+  border-left: 2px solid #000;
+  padding-left: 8px;
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 9pt;
+}
+
+.formula-caption {
+  font-size: 9pt;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* 2D canvas viz inside viz-container */
+.sim-canvas-2d {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Step intro overlay */
+.step-intro {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  gap: 12px;
+}
+
+.step-intro h2 {
+  font-size: 11pt;
+  font-weight: bold;
+}
+
+.step-intro p {
+  font-size: 10pt;
+  color: var(--muted);
+  max-width: 300px;
+}
+
+/* Parameter map grid */
+.param-map {
+  display: grid;
+  gap: 1px;
+  background: #000;
+  border: 1px solid #000;
+}
+
+.param-map canvas {
+  display: block;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #999; }
+::-webkit-scrollbar-thumb:hover { background: #000; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  #app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 50vh;
+  }
+  .col {
+    border-right: none;
+    border-bottom: var(--col-border);
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+  #col-viz {
+    max-height: 50vh;
+  }
+}

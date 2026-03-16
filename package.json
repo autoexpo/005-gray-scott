@@ -1,0 +1,32 @@
+{
+  "name": "005-gray-scott",
+  "version": "1.0.0",
+  "description": "Gray-Scott reaction-diffusion model — interactive simulation and visualisation",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node src/tests/run-tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/autoexpo/005-gray-scott.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/autoexpo/005-gray-scott/issues"
+  },
+  "homepage": "https://github.com/autoexpo/005-gray-scott#readme",
+  "dependencies": {
+    "lil-gui": "^0.21.0",
+    "stats.js": "^0.17.0",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}
