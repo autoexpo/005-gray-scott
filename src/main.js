@@ -25,13 +25,13 @@ function loadHljs() {
   return new Promise(resolve => {
     if (window.hljs) { resolve(); return }
     const script = document.createElement('script')
-    script.src = 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/build/highlight.min.js'
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js'
     script.onload = resolve
     document.head.appendChild(script)
 
     const style = document.createElement('link')
     style.rel = 'stylesheet'
-    style.href = 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css'
+    style.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'
     document.head.appendChild(style)
   })
 }
