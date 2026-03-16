@@ -8,7 +8,7 @@ test.describe('Step 3: 1D Diffusion (heat equation)', () => {
     page.on('pageerror', err => errors.push(err.message))
 
     await page.goto('/#3')
-    await page.waitForSelector('#sim-canvas', { timeout: 10_000 })
+    await page.waitForSelector('#canvas2d-sim', { timeout: 10_000 })
     // Let it render 1 frame
     await page.waitForTimeout(300)
 

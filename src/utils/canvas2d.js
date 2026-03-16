@@ -6,13 +6,13 @@ const FIXED_SIZE = 512 // canonical square canvas size for all visualizations
 
 /**
  * Create a fixed 512×512 square 2D canvas centered in the container.
- * The canvas gets id="sim-canvas" so CSS can target it directly by ID.
+ * The canvas gets id="canvas2d-sim" so CSS can target it directly by ID.
  */
 export function makeCanvas2D(container, pixelated = true, onResize = null) {
   const canvas = document.createElement('canvas')
   canvas.width = FIXED_SIZE
   canvas.height = FIXED_SIZE
-  canvas.id = 'sim-canvas'
+  canvas.id = 'canvas2d-sim'
   canvas.style.cssText = `display:block; width:${FIXED_SIZE}px; height:${FIXED_SIZE}px; margin:auto; margin-top:20px`
   if (pixelated) {
     canvas.style.imageRendering = 'pixelated'

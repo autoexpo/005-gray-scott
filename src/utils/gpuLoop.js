@@ -48,6 +48,7 @@ export function startGPULoop(container, options = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true })
   renderer.setPixelRatio(1) // pixel-perfect for sim
   renderer.setSize(S, S)
+  renderer.domElement.id = 'three-canvas'
   wrap.appendChild(renderer.domElement)
 
   // No resize observer needed — fixed square

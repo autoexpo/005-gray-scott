@@ -8,7 +8,7 @@ test.describe('Step 8: Dot Seeding', () => {
     page.on('pageerror', err => errors.push(err.message))
 
     await page.goto('/#8')
-    await page.waitForSelector('#sim-canvas', { timeout: 15_000 })
+    await page.waitForSelector('#canvas2d-sim', { timeout: 15_000 })
     await page.waitForTimeout(1_000)
 
     // Initial state: should have visible seed dots

@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test'
 
 /** Read all pixels from a canvas element (works for both Canvas2D and WebGL via drawImage bridge) */
-export async function readPixels(page: Page, selector = '#sim-canvas'): Promise<Uint8ClampedArray> {
+export async function readPixels(page: Page, selector = '#canvas2d-sim'): Promise<Uint8ClampedArray> {
   return page.evaluate((sel) => {
     const el = document.querySelector(sel) as HTMLElement
     let src: HTMLCanvasElement

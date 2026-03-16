@@ -104,7 +104,7 @@ function animate() {
     const canvas = document.createElement('canvas')
     canvas.width = S
     canvas.height = S
-    canvas.id = 'sim-canvas'
+    canvas.id = 'canvas2d-sim'
     canvas.style.cssText = 'display:block; width:512px; height:512px; margin:auto; margin-top:20px'
     container.appendChild(canvas)
     const ctx = canvas.getContext('2d')

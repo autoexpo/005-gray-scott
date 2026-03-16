@@ -8,7 +8,7 @@ test.describe('Step 4: 2D Diffusion', () => {
     page.on('pageerror', err => errors.push(err.message))
 
     await page.goto('/#4')
-    await page.waitForSelector('#sim-canvas', { timeout: 10_000 })
+    await page.waitForSelector('#canvas2d-sim', { timeout: 10_000 })
     await page.waitForTimeout(3_000)
 
     const pixels = await readPixels(page)

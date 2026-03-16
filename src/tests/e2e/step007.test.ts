@@ -10,7 +10,7 @@ test.describe('Step 7: Parameter Explorer', () => {
     page.on('pageerror', err => errors.push(err.message))
 
     await page.goto('/#7')
-    await page.waitForSelector('#sim-canvas canvas', { timeout: 15_000 })
+    await page.waitForSelector('#three-canvas', { timeout: 15_000 })
     // Wait for lil-gui to mount
     await page.waitForSelector('.lil-gui', { timeout: 10_000 })
 
@@ -18,7 +18,7 @@ test.describe('Step 7: Parameter Explorer', () => {
     expect(guiEls.length).toBeGreaterThan(0)
 
     await page.waitForTimeout(5_000)
-    const pixels = await readPixels(page)
+    const pixels = await readPixels(page, '#three-canvas')
     const variance = pixelVariance(pixels)
     // Simulation should have non-trivial visual content
     expect(variance).toBeGreaterThan(50)
