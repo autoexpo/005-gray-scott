@@ -12,15 +12,21 @@ export default {
 <p>A preset resets f, k, Du, Dv to known-good values and optionally resets the simulation grid.
 Resetting the grid is needed when moving to a very different parameter regime.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 48 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Preset system: named (f,k,Du,Dv,dt) configurations
+import { PRESETS, getPreset } from '../../presets/parameters.js'
+
+function loadPreset(name, sim, params) {
+  const p = getPreset(name)
+  Object.assign(params, p)  // mutate params in-place
+  sim.reset(params)          // restart from clean state
+}
+
+// In onGui callback:
+const presetCtrl = { name: 'spots' }
+gui.add(presetCtrl, 'name', Object.keys(PRESETS))
+  .name('preset')
+  .onChange(name => loadPreset(name, sim, params))
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +35,17 @@ Resetting the grid is needed when moving to a very different parameter regime.</
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
+      onGui: (gui, sim, params) => {
+        const presetCtrl = { name: 'spots' };
+        gui.add(presetCtrl, 'name', ['spots','stripes','worms','mitosis','bubbles','coral','solitons','chaos'])
+          .name('preset')
+          .onChange(name => {
+            const p = PRESETS[name];
+            Object.assign(params, p);
+            sim.reset(params)
+          })
+      }
     })
   }
 }

@@ -12,15 +12,15 @@ export default {
 <p>Iso-value lines are rendered by detecting zero-crossings of (u - threshold).
 In GLSL: if fract(u × N) < 0.05, draw a line. Creates a topographic map effect.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 66 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-glsl">// VizShader: iso-contour rendering using fract()
+float u = texture2D(uTexture, vUv).r;
+float contours = 10.0;        // number of contour lines
+float t = fract(u * contours); // periodic sawtooth 0→1 per contour band
+// Draw thin dark line at each contour level:
+float line = smoothstep(0.0, 0.05, t) * smoothstep(1.0, 0.95, t);
+gl_FragColor = vec4(vec3(line), 1.0);
+// Each contour line = locus of cells where U = n/contours (n=0,1,2...)
 </code></pre></div>`,
 
   init(container, state) {

@@ -11,15 +11,12 @@ export default {
   math: `<div class="math-section"><h3>Grayscale Mapping</h3>
 <p>The simplest visualization: output = (u, u, u, 1). High food = bright white. Pattern regions where V is high and U is depleted appear dark.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 59 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-glsl">// VizShader: grayscale mode
+// Read U from R channel (u stored in .r, v stored in .g)
+float u = texture2D(uTexture, vUv).r;
+gl_FragColor = vec4(u, u, u, 1.0);
+// Bright → high U (food-rich, V-inactive) | Dark → low U (V active)
 </code></pre></div>`,
 
   init(container, state) {

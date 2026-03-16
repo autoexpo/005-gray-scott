@@ -12,15 +12,13 @@ export default {
 <p>f=0.030, k=0.057: Traveling wave pulses that maintain their shape.
 "Soliton" because they pass through each other without dispersion.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 55 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">const solitons = { f: 0.030, k: 0.057, Du: 0.2097, Dv: 0.105, dt: 1.0 }
+// f=0.030: too low to sustain static patterns
+// k=0.057: moderate kill — V forms traveling pulses
+// Solitons: stable propagating waves that survive collisions
+// 2D analogue of 1D traveling waves from chapter 2
+// Speed ≈ 2√(Du·f) ≈ 0.16 cells/time-unit
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +27,7 @@ export default {
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

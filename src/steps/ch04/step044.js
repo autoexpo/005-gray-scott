@@ -12,15 +12,23 @@ export default {
 <p>We run multiple simulation steps per requestAnimationFrame call.
 The GPU can do 8–32 steps per frame at 60fps for a 256×256 grid.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 44 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Sub-stepped RAF loop: run N sim steps per display frame
+// Pattern formation needs ~5000 time units
+// At 60fps × 8 steps/frame × dt=1.0 → ~480 units/sec → ~10s to patterns
+
+let stepsPerFrame = 8
+function animate() {
+  requestAnimationFrame(animate)
+  if (!paused) {
+    sim.step(params, stepsPerFrame)  // N parallel GPU steps
+  }
+  sim.render(vizMode)
+}
+
+// Trade-off: higher stepsPerFrame → faster patterns, lower frame rate
+// 8 steps/frame @ 256×256 ≈ 60fps on modern GPU
+// 32 steps/frame @ 512×512 may drop to 30fps
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +37,7 @@ The GPU can do 8–32 steps per frame at 60fps for a 256×256 grid.</p></div>`,
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

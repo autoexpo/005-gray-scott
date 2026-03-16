@@ -12,15 +12,20 @@ export default {
 <p>Drawing V into the simulation by clicking/dragging injects activator locally.
 Existing patterns are perturbed; new patterns nucleate from the drawn region.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 57 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Mouse seeding: SeedShader paints V=1 at mouse position
+// Implemented as a third GPU pass (after sim and viz):
+
+// On mousemove: convert canvas coords to UV [0,1]
+const uv = { x: event.clientX / canvas.width, y: 1 - event.clientY / canvas.height }
+
+// SeedShader renders a Gaussian spot into the simulation FBO:
+// float dist = length(vUv - seedPos);
+// float v_seed = exp(-dist*dist / (2.0 * radius * radius));
+// gl_FragColor = vec4(0.0, v_seed, 0.0, 1.0);  // inject V
+
+// The reaction processes the seed on the next sim step automatically
+// No restart required — Gray-Scott handles new seeds continuously
 </code></pre></div>`,
 
   init(container, state) {

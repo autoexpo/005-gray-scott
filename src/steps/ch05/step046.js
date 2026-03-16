@@ -12,15 +12,19 @@ export default {
 <p>lil-gui creates interactive HTML controls bound to JavaScript objects.
 Changes propagate to shader uniforms on the next frame — no recompilation needed.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 46 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// lil-gui: direct mutation binding
+// gui.add(object, property, min, max, step) creates a slider
+// Slider mutates object.property directly — no callbacks needed for params
+
+const gui = new GUI()
+const simFolder = gui.addFolder('Simulation')
+simFolder.add(params, 'f', 0.01, 0.12, 0.001).name('f (feed)')
+simFolder.add(params, 'k', 0.04, 0.07, 0.001).name('k (kill)')
+simFolder.open()
+
+// Each drag calls params.f = newValue automatically
+// sim.step(params, n) reads params.f every frame → live response
 </code></pre></div>`,
 
   init(container, state) {

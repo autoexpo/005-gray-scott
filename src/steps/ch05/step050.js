@@ -12,15 +12,13 @@ export default {
 <p>f=0.060, k=0.062: Produces labyrinthine stripe patterns. Similar to zebra stripes or coral brain patterns.
 The stripes form with a characteristic wavelength determined by Du/Dv.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 50 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Stripes preset — labyrinthine Turing pattern
+const stripes = { f: 0.060, k: 0.062, Du: 0.2097, Dv: 0.105, dt: 1.0 }
+// f=0.060: higher feed than spots — V can sustain connected domains
+// k=0.062: similar kill rate — but extra U supply changes topology
+// Result: connected labyrinthine stripes (no isolated spots)
+// Near boundary with spots: mixed patterns possible
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +27,7 @@ The stripes form with a characteristic wavelength determined by Du/Dv.</p></div>
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

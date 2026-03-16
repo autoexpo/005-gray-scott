@@ -12,15 +12,22 @@ export default {
 <p>Uniforms are values passed from JavaScript to GLSL each frame.
 They allow parameter changes without recompiling the shader.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 45 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// GLSL uniforms: CPU → GPU parameter bridge
+// SimShader receives these every frame:
+uniform float f;    // feed rate
+uniform float k;    // kill rate
+uniform float Du;   // U diffusion
+uniform float Dv;   // V diffusion
+uniform float dt;   // time step
+
+// In JS (Three.js), set via material uniforms:
+sim.sim.material.uniforms.f.value = params.f
+sim.sim.material.uniforms.k.value = params.k
+
+// Live editing: change params object → uniform updates → next frame uses new value
+// No shader recompile needed — uniforms are just memory writes
+params.f = 0.060  // changes next frame automatically
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +36,7 @@ They allow parameter changes without recompiling the shader.</p></div>`,
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

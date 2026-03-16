@@ -12,15 +12,19 @@ export default {
 <p>After simulation, a second full-screen pass reads the (u,v) texture and
 converts it to displayable RGB. This separation allows multiple viz modes.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 41 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Two-pass GPU architecture:
+// Pass 1 — SimShader: compute new (u,v) → write to FBO
+// Pass 2 — VizShader: read (u,v) texture → output RGB to screen
+
+// VizShader grayscale mode:
+// float u = texture2D(uTexture, vUv).r;
+// gl_FragColor = vec4(u, u, u, 1.0);  // U maps to luminance
+
+// Separation: change vizMode without touching physics
+sim.render('grayscale')   // bright = high U (food-rich)
+sim.render('invert')      // bright = high V (activator-rich)
+sim.render('edge')        // bright = pattern boundaries
 </code></pre></div>`,
 
   init(container, state) {

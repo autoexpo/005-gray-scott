@@ -12,15 +12,13 @@ export default {
 <p>Blend the current frame with an accumulation buffer: out = 0.95 × prev + 0.05 × current.
 Moving fronts leave a trail; stationary patterns remain sharp.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 64 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Temporal blending: mix current frame with previous
+// Implemented with an extra FBO that accumulates history:
+// blendFBO = mix(currentVizOutput, blendFBO, 0.9)
+// → static patterns unchanged (0.9×stable = stable)
+// → moving patterns leave trails (new positions blend over old)
+// Trail length proportional to blend factor (0.9 = long, 0.5 = short)
 </code></pre></div>`,
 
   init(container, state) {

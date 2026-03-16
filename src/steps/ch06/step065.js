@@ -12,15 +12,22 @@ export default {
 <p>The Sobel operator computes the gradient magnitude of u, highlighting boundaries between pattern and background.
 $$|\\nabla u| = \\sqrt{G_x^2 + G_y^2}$$</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 65 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-glsl">// VizShader: Sobel edge detection
+// Sample 8 neighbours (3×3 kernel)
+float tl = texture2D(t, vUv + vec2(-dx,  dy)).r;
+float t0 = texture2D(t, vUv + vec2(  0,  dy)).r;
+float tr = texture2D(t, vUv + vec2( dx,  dy)).r;
+float ml = texture2D(t, vUv + vec2(-dx,   0)).r;
+float mr = texture2D(t, vUv + vec2( dx,   0)).r;
+float bl = texture2D(t, vUv + vec2(-dx, -dy)).r;
+float b0 = texture2D(t, vUv + vec2(  0, -dy)).r;
+float br = texture2D(t, vUv + vec2( dx, -dy)).r;
+
+float gx = -tl - 2.0*ml - bl + tr + 2.0*mr + br;  // horizontal
+float gy = -tl - 2.0*t0 - tr + bl + 2.0*b0 + br;  // vertical
+float edge = sqrt(gx*gx + gy*gy);
+gl_FragColor = vec4(edge, edge, edge, 1.0);
 </code></pre></div>`,
 
   init(container, state) {

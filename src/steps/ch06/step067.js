@@ -12,15 +12,22 @@ export default {
 <p>A UV offset and scale uniform in the visualization shader allows zooming into
 regions of interest without changing the simulation resolution.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 67 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Zoom/pan via UV uniforms in VizShader (not SimShader)
+// Scale: zoom > 1 = zoom in (smaller UV range → fewer cells displayed)
+// Offset: pan to different region
+
+// In VizShader:
+// vec2 zoomedUV = (vUv - 0.5) / zoom + 0.5 + panOffset;
+// float u = texture2D(uTexture, zoomedUV).r;
+
+// Example: 4× zoom into center
+const zoom = 4.0
+const panX = 0.0  // centered
+const panY = 0.0
+
+// Reveals concentration gradient at spot boundary:
+// U transitions from ≈1 (background) to ≈0 (spot center) over ~5 cells
 </code></pre></div>`,
 
   init(container, state) {

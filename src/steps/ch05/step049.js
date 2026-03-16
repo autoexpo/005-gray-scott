@@ -12,15 +12,15 @@ export default {
 <p>f=0.035, k=0.065: Produces isolated circular spots (similar to leopard spots).
 This is perhaps the most visually striking and stable pattern type.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 49 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Spots preset — classic Turing pattern
+const spots = { f: 0.035, k: 0.065, Du: 0.2097, Dv: 0.105, dt: 1.0 }
+// f=0.035: low feed — just enough to sustain V but not flood
+// k=0.065: high kill — prevents V from spreading past spot boundaries
+// Result: isolated V-rich circles on a U-rich background
+// Biological analogue: leopard spots, zebrafish pigment cells
+
+// Pattern formation time: ~3000-5000 sim-time-units from center seed
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +29,7 @@ This is perhaps the most visually striking and stable pattern type.</p></div>`,
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

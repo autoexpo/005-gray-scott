@@ -12,15 +12,24 @@ export default {
 <p>canvas.toDataURL('image/png') captures the current frame.
 For the WebGL canvas, this requires preserveDrawingBuffer: true.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 70 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// PNG export requires preserveDrawingBuffer: true
+const renderer = new THREE.WebGLRenderer({
+  preserveDrawingBuffer: true  // prevents canvas clear after each frame
+  // WARNING: disables double-buffering → slight performance cost (~5-10%)
+  // Only enable when export is needed
+})
+
+// Export current frame:
+function exportPNG() {
+  const url = renderer.domElement.toDataURL('image/png')
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'gray-scott-frame.png'
+  a.click()
+}
+
+// Without preserveDrawingBuffer: toDataURL() returns blank (buffer already swapped)
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +38,15 @@ For the WebGL canvas, this requires preserveDrawingBuffer: true.</p></div>`,
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      onGui: (gui, sim, params) => {
+        gui.add({ export: () => {
+          const url = sim.renderer.domElement.toDataURL('image/png')
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'gray-scott.png'
+          a.click()
+        } }, 'export').name('Export PNG')
+      }
     })
   }
 }

@@ -13,15 +13,25 @@ export default {
 the RMS difference in U should be below 1e-4 (floating-point precision).
 Larger differences indicate a bug in the GLSL shader.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 43 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Validate GPU against CPU reference (same init, N steps)
+const gpu = new GPUSim(renderer, 64)
+const cpu = new Integrator(64, 64)
+gpu.reset(params); cpu.reset(params)
+
+for (let i = 0; i < 100; i++) {
+  gpu.step(params, 1)
+  cpu.step(params, 1)
+}
+
+// Read GPU texture back to CPU
+const gpuData = gpu.readback()  // Float32Array RGBA
+
+let maxErr = 0
+for (let i = 0; i < 64*64; i++) {
+  maxErr = Math.max(maxErr, Math.abs(gpuData[i*4] - cpu.u[i]))
+}
+console.log('Max error:', maxErr)  // expect < 1e-4
 </code></pre></div>`,
 
   init(container, state) {

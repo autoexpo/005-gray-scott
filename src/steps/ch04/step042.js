@@ -12,15 +12,19 @@ export default {
 <p>Three.js WebGLRenderTarget wraps an FBO. We use RawShaderMaterial to write
 pure GLSL without Three.js shader chunks. The renderer handles context management.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 42 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Three.js as WebGL abstraction for GPU compute
+const renderer = new THREE.WebGLRenderer({ antialias: false })
+renderer.setSize(512, 512)
+
+// Full-screen quad: 2×2 plane covers entire NDC space [-1,1]
+// OrthographicCamera at z=1 looks straight down at it
+// Every fragment = one simulation cell
+const sim = new GPUSim(renderer, 256)  // 256×256 grid
+
+// Each frame: compute + display
+sim.step(params, 8)      // 8 Gray-Scott steps on GPU
+sim.render('invert')     // viz pass: (u,v) → RGB
 </code></pre></div>`,
 
   init(container, state) {

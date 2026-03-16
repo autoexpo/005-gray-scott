@@ -11,15 +11,15 @@ export default {
   math: `<div class="math-section"><h3>False Color</h3>
 <p>Map u through a lookup table (LUT). A simple B&W gradient: low u → black, high u → white, with a non-linear mapping to enhance contrast in the pattern region.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 61 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-glsl">// False color lookup table (concept — extend VizShader to add this):
+float u = texture2D(uTexture, vUv).r;
+// Multi-stop color ramp: dark blue → cyan → yellow → red
+vec3 color = u < 0.33 ? mix(vec3(0,0,0.5), vec3(0,1,1), u/0.33)
+           : u < 0.66 ? mix(vec3(0,1,1), vec3(1,1,0), (u-0.33)/0.33)
+           :             mix(vec3(1,1,0), vec3(1,0,0), (u-0.66)/0.34);
+gl_FragColor = vec4(color, 1.0);
+// False color reveals gradients invisible in grayscale
 </code></pre></div>`,
 
   init(container, state) {

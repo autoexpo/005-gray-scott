@@ -12,15 +12,22 @@ export default {
 <p>The (f,k) plane is the master control surface. Different regions produce
 qualitatively distinct attractors. The boundaries between regions are fractal-like.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 56 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">// Named regions of the (f,k) parameter space:
+// Each region is an attractor basin — not a precise boundary but a rough map
+const regions = [
+  { f: 0.035, k: 0.065, name: 'spots' },
+  { f: 0.060, k: 0.062, name: 'stripes' },
+  { f: 0.078, k: 0.061, name: 'worms' },
+  { f: 0.028, k: 0.053, name: 'mitosis' },
+  { f: 0.098, k: 0.057, name: 'bubbles' },
+  { f: 0.030, k: 0.057, name: 'solitons' },
+  { f: 0.026, k: 0.051, name: 'chaos' },
+  // f < 0.01 or k > 0.07: extinction (V dies out)
+  // f > 0.10 + k < 0.05: homogeneous (U floods domain)
+]
+// Navigate with f,k sliders — watch patterns transform continuously
+// Boundaries are fractal-like: approach from different directions → different transients
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +36,7 @@ qualitatively distinct attractors. The boundaries between regions are fractal-li
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

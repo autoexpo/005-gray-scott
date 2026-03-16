@@ -12,15 +12,13 @@ export default {
 <p>Linearly interpolate between two colors (in B&W: two grays) as a function of u.
 The effective range [0.3, 0.7] is where most pattern information lives.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 62 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-glsl">// VizShader: two-color gradient mapping
+float u = texture2D(uTexture, vUv).r;
+vec3 colorA = vec3(0.05, 0.05, 0.3);  // deep blue (low U / V-active)
+vec3 colorB = vec3(1.0, 0.98, 0.9);   // warm white (high U / background)
+gl_FragColor = vec4(mix(colorA, colorB, u), 1.0);
+// Same as D3: d3.scaleSequential([colorA, colorB]).domain([0, 1])
 </code></pre></div>`,
 
   init(container, state) {

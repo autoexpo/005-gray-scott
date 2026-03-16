@@ -12,15 +12,12 @@ export default {
 <p>f=0.098, k=0.057: Large bubble-like domains expanding outward.
 High feed rate means V is well-supplied and forms macroscopic structures.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 53 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-js">const bubbles = { f: 0.098, k: 0.057, Du: 0.2097, Dv: 0.105, dt: 1.0 }
+// f=0.098: very high feed — U constantly replenished
+// k=0.057: moderate kill — V grows but can't completely escape
+// Result: large V-filled domains compete for space
+// Coarsening: small bubbles shrink, large ones grow (Ostwald ripening)
 </code></pre></div>`,
 
   init(container, state) {
@@ -29,6 +26,7 @@ High feed rate means V is well-supplied and forms macroscopic structures.</p></d
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

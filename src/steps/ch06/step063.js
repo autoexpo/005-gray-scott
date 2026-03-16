@@ -11,15 +11,14 @@ export default {
   math: `<div class="math-section"><h3>Dual Channel: U and V</h3>
 <p>Visualize both species simultaneously: u contributes to brightness, v to a different visual channel. In B&W: output = u × 0.6 + v × 0.4.</p></div>`,
 
-  code: `<div class="code-section"><h3>Step 63 Code</h3>
-<pre><code class="language-js">// See the source files for this step's implementation.
-// Key files:
-//   src/gpu/GPUSim.js      — GPU simulation pipeline
-//   src/gpu/SimShader.js   — Gray-Scott GLSL compute shader
-//   src/gpu/VizShader.js   — Visualization modes
-//   src/gpu/PingPong.js    — Double-buffer FBO pair
-//   src/cpu/Integrator.js  — CPU reference implementation
-//   src/presets/parameters.js — Named parameter presets
+  code: `<div class="code-section">
+<pre><code class="language-glsl">// VizShader: dual channel — U drives red, V drives green
+vec2 uv_val = texture2D(uTexture, vUv).rg;
+float u = uv_val.r;  // food species
+float v = uv_val.g;  // activator species
+gl_FragColor = vec4(u, v, 0.0, 1.0);
+// Anti-correlation: where V is green-bright, U is red-dark
+// They cannot both be high simultaneously — the reaction ensures this
 </code></pre></div>`,
 
   init(container, state) {
