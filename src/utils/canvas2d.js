@@ -2,35 +2,29 @@
  * Canvas2D helpers for CPU simulation visualization.
  */
 
+const FIXED_SIZE = 300 // canonical square canvas size for all visualizations
+
 /**
- * Create a 2D canvas sized to its container.
+ * Create a fixed 300×300 square 2D canvas centered in the container.
+ * The canvas class="fixed-canvas" exempts it from the full-bleed CSS rule.
  */
 export function makeCanvas2D(container, pixelated = true, onResize = null) {
   const canvas = document.createElement('canvas')
-  canvas.style.width = '100%'
-  canvas.style.height = '100%'
-  canvas.style.display = 'block'
+  canvas.width = FIXED_SIZE
+  canvas.height = FIXED_SIZE
+  canvas.className = 'fixed-canvas'
+  canvas.style.cssText = `display:block; width:${FIXED_SIZE}px; height:${FIXED_SIZE}px; margin:auto; margin-top:20px`
   if (pixelated) {
     canvas.style.imageRendering = 'pixelated'
     canvas.style.imageRendering = 'crisp-edges'
   }
   container.appendChild(canvas)
 
-  const resize = () => {
-    const w = container.clientWidth
-    const h = container.clientHeight
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w
-      canvas.height = h
-      if (onResize) onResize()
-    }
-  }
-  resize()
+  // no ResizeObserver needed — canvas is fixed size
+  const resize = () => {}
+  const disconnect = () => {}
 
-  const ro = new ResizeObserver(resize)
-  ro.observe(container)
-
-  return { canvas, resize, disconnect: () => ro.disconnect() }
+  return { canvas, resize, disconnect }
 }
 
 /**

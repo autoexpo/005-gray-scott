@@ -37,17 +37,20 @@ export function startGPULoop(container, options = {}) {
     onFrame = null,
   } = options
 
-  // Three.js renderer
+  // Centered 300×300 square wrapper — keeps 1:1 aspect, consistent with canvas2d steps
+  const S = 300
+  const wrap = document.createElement('div')
+  wrap.style.cssText = `width:${S}px; height:${S}px; margin:auto; margin-top:20px; position:relative; flex-shrink:0`
+  container.appendChild(wrap)
+
+  // Three.js renderer sized to the square
   const renderer = new THREE.WebGLRenderer({ antialias: false })
   renderer.setPixelRatio(1) // pixel-perfect for sim
-  renderer.setSize(container.clientWidth, container.clientHeight)
-  container.appendChild(renderer.domElement)
+  renderer.setSize(S, S)
+  wrap.appendChild(renderer.domElement)
 
-  // Resize observer
-  const ro = new ResizeObserver(() => {
-    renderer.setSize(container.clientWidth, container.clientHeight)
-  })
-  ro.observe(container)
+  // No resize observer needed — fixed square
+  const ro = { disconnect: () => {} }
 
   // GPU sim
   const sim = new GPUSim(renderer, size, stencil)
@@ -63,8 +66,8 @@ export function startGPULoop(container, options = {}) {
     stats = new Stats()
     stats.showPanel(0) // FPS
     stats.dom.style.cssText = 'position:absolute;top:4px;left:4px;'
-    container.appendChild(stats.dom)
-    container.style.position = 'relative'
+    wrap.appendChild(stats.dom)
+    wrap.style.position = 'relative'
   }
 
   // GUI
@@ -73,7 +76,7 @@ export function startGPULoop(container, options = {}) {
   let paused = false
 
   if (showGui) {
-    const gui = GuiManager.create(container)
+    const gui = GuiManager.create(wrap)
 
     const simFolder = gui.addFolder('Simulation')
     simFolder.add(simParams, 'f', 0.01, 0.12, 0.001).name('f (feed)').onChange(v => { simParams.f = v })
