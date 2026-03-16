@@ -64,8 +64,96 @@ computeLaplacian(v, lapV, N)
 `,
 
   init(container) {
+    // Add D3 visualization first
+    import('d3').then(d3 => {
+      const svg = d3.select(container)
+        .append('svg')
+        .attr('id', 'd3-sim')
+        .attr('width', 500)
+        .attr('height', 200)
+        .style('display', 'block')
+        .style('margin', '20px auto')
+
+      // Sample u values
+      const uValues = [0.2, 0.5, 0.9, 0.7, 0.3, 0.4, 0.8, 0.6, 0.2, 0.3]
+      const N = uValues.length
+
+      // Compute Laplacian with periodic boundary
+      const lapValues = uValues.map((_, i) => {
+        const left = uValues[(i - 1 + N) % N]
+        const right = uValues[(i + 1) % N]
+        const center = uValues[i]
+        return left - 2 * center + right
+      })
+
+      // Draw u values bar chart
+      const barWidth = 35
+      const spacing = 45
+      const maxValue = Math.max(...uValues)
+      const minLap = Math.min(...lapValues)
+      const maxLap = Math.max(...lapValues)
+      const lapScale = Math.max(Math.abs(minLap), Math.abs(maxLap))
+
+      // U values bars
+      svg.selectAll('.u-bar')
+        .data(uValues)
+        .enter()
+        .append('rect')
+        .attr('class', 'u-bar')
+        .attr('x', (d, i) => 50 + i * spacing)
+        .attr('y', d => 50 - (d / maxValue) * 40)
+        .attr('width', barWidth)
+        .attr('height', d => (d / maxValue) * 40)
+        .attr('fill', '#2c2c2c')
+        .attr('stroke', '#999')
+
+      // Laplacian bars
+      svg.selectAll('.lap-bar')
+        .data(lapValues)
+        .enter()
+        .append('rect')
+        .attr('class', 'lap-bar')
+        .attr('x', (d, i) => 50 + i * spacing)
+        .attr('y', d => d >= 0 ? 120 - (d / lapScale) * 30 : 120)
+        .attr('width', barWidth)
+        .attr('height', d => Math.abs(d / lapScale) * 30)
+        .attr('fill', d => d >= 0 ? '#0066cc' : '#cc0000')
+        .attr('stroke', '#999')
+
+      // Labels
+      svg.append('text')
+        .attr('x', 250)
+        .attr('y', 25)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'SF Mono, monospace')
+        .attr('font-size', '12px')
+        .attr('font-weight', 'bold')
+        .text('u values')
+
+      svg.append('text')
+        .attr('x', 250)
+        .attr('y', 110)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'SF Mono, monospace')
+        .attr('font-size', '12px')
+        .attr('font-weight', 'bold')
+        .text('∇²u (Laplacian)')
+
+      // Index labels
+      uValues.forEach((_, i) => {
+        svg.append('text')
+          .attr('x', 50 + i * spacing + barWidth/2)
+          .attr('y', 180)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'SF Mono, monospace')
+          .attr('font-size', '10px')
+          .text(i)
+      })
+    })
+
+    // Keep existing text panel below
     const div = document.createElement('div')
-    div.style.cssText = 'padding:20px; font-family:SF Mono,monospace; font-size:9pt; overflow-y:auto; height:100%'
+    div.style.cssText = 'padding:20px; font-family:SF Mono,monospace; font-size:9pt; overflow-y:auto'
     div.innerHTML = `
 <pre style="border:none; background:none; line-height:1.8">
   1D FINITE DIFFERENCE LAPLACIAN
