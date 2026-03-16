@@ -8,7 +8,7 @@ export default {
   title: 'Seeding Shader — GPU-Side Paint',
   chapter: 5,
 
-  math: \`
+  math: `
 <div class="math-section">
   <h3>GPU-Side Seeding: Uniform-Driven Brush</h3>
   <p>The seeding operation happens entirely on the GPU. Mouse position (x,y) and
@@ -42,9 +42,9 @@ export default {
     <li>Visualization: render final state to canvas</li>
   </ol>
 </div>
-\`,
+`,
 
-  code: \`
+  code: `
 <div class="code-section">
   <h3>SeedShader.js Contents — Complete Implementation</h3>
 <pre><code class="language-js">/**
@@ -201,7 +201,7 @@ class GPUSim {
 }
 </code></pre>
 </div>
-\`,
+`,
 
   init(container) {
     return startGPULoop(container, {

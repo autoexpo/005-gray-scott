@@ -158,7 +158,7 @@ function classifyPattern(imageData) {
       .attr('height', height + margin.top + margin.bottom)
 
     const g = svg.append('g')
-      .attr('transform', \`translate(\${margin.left},\${margin.top})\`)
+      .attr('transform', `translate(${margin.left},${margin.top})`)
 
     // Scales
     const xScale = d3.scaleLinear()
@@ -171,7 +171,7 @@ function classifyPattern(imageData) {
 
     // Axes
     g.append('g')
-      .attr('transform', \`translate(0,\${height})\`)
+      .attr('transform', `translate(0,${height})`)
       .call(d3.axisBottom(xScale))
       .append('text')
       .attr('x', width / 2)
