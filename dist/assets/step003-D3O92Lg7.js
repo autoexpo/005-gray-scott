@@ -1,15 +1,4 @@
-/**
- * Step 3: Diffusion alone — Fick's Law and the heat equation.
- * Animated 1D heat equation demo.
- */
-import * as d3 from 'd3'
-import { createSimControls } from '../../utils/simControls.js'
-
-export default {
-  title: "Diffusion: Fick's Law",
-  chapter: 1,
-
-  math: `
+import{t as e}from"./linear-BCfk2I7B.js";import{n as t,t as n}from"./axis-DtUEpaBV.js";import{o as r}from"./src-51qo7f6l.js";import{t as i}from"./line-XuMgxOSY.js";import{t as a}from"./simControls-D-DGtL0_.js";var o={title:`Diffusion: Fick's Law`,chapter:1,math:`
 <div class="math-section">
   <h3>Fick's Second Law of Diffusion</h3>
   <p>Diffusion describes the spreading of a quantity from regions of high concentration
@@ -45,9 +34,7 @@ export default {
   <div class="math-block">$$\\Delta t \\leq \\frac{h^2}{2D}$$</div>
   <p>In 2D: $\\Delta t \\leq \\frac{h^2}{4D}$. With h=1, D=0.2097: dt ≤ 2.38 (1D), dt ≤ 1.19 (2D).</p>
 </div>
-`,
-
-  code: `
+`,code:`
 <div class="code-section">
   <h3>1D Diffusion: Euler Step</h3>
   <div class="filename">1D heat equation demo</div>
@@ -99,93 +86,4 @@ function animate() {
 // Result: concentration spreads until uniform.
 </code></pre>
 </div>
-`,
-
-  init(container) {
-    const S = 512
-    const margin = { top: 20, right: 20, bottom: 40, left: 50 }
-    const W = S - margin.left - margin.right
-    const H = S - margin.top - margin.bottom
-
-    const svg = d3.select(container).append('svg')
-      .attr('id', 'd3-sim')
-      .attr('width', S).attr('height', S)
-      .style('display', 'block').style('margin', '20px auto 0')
-
-    const g = svg.append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
-
-    const x = d3.scaleLinear().domain([0, 1]).range([0, W])
-    const y = d3.scaleLinear().domain([0, 1]).range([H, 0])
-
-    g.append('g').attr('transform', `translate(0,${H})`).call(d3.axisBottom(x).ticks(5))
-    g.append('g').call(d3.axisLeft(y).ticks(5))
-
-    // Style axes
-    g.selectAll('.domain, .tick line').attr('stroke', '#000')
-    g.selectAll('.tick text').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
-
-    // Labels
-    g.append('text').attr('x', W).attr('y', H + 35).style('text-anchor', 'end').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').text('x')
-    g.append('text').attr('x', -10).attr('y', -5).style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').text('c')
-
-    // Time label
-    const timeLabel = g.append('text').attr('x', 4).attr('y', 15).style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
-
-    // Create path element for the line
-    const path = g.append('path').attr('fill', 'none').attr('stroke', '#000').attr('stroke-width', 1.5)
-
-    const N = 200
-    const D = 0.2
-    const dt = 0.3
-    let c = new Float32Array(N).fill(0)
-    c[Math.floor(N/2)] = 1.0
-    let t = 0
-    let animId
-    let paused = false
-
-    function reset() {
-      c.fill(0); c[Math.floor(N/2)] = 1.0; t = 0
-    }
-
-    const controls = createSimControls(container, {
-      onPause: (p) => { paused = p },
-      onReplay: () => { reset() },
-    })
-
-    function step() {
-      const next = new Float32Array(N)
-      for (let i = 0; i < N; i++) {
-        const l = c[(i-1+N)%N], r = c[(i+1)%N]
-        next[i] = Math.max(0, c[i] + dt * D * (l - 2*c[i] + r))
-      }
-      c = next
-      t += dt
-    }
-
-    function render() {
-      const data = Array.from(c).map((v, i) => [i / (N-1), v])
-      const line = d3.line().x(d => x(d[0])).y(d => y(d[1]))
-      path.attr('d', line(data))
-      timeLabel.text(`D·∇²c  t=${t.toFixed(1)}`)
-    }
-
-    function animate() {
-      animId = requestAnimationFrame(animate)
-      if (!paused) {
-        for (let i = 0; i < 4; i++) step()
-        if (t > 500) reset()
-      }
-      render()
-    }
-
-    render()
-    animate()
-
-    return () => {
-      cancelAnimationFrame(animId)
-      controls.remove()
-      d3.select(container).select('#d3-sim').remove()
-    }
-  }
-}
+`,init(o){let s={top:20,right:20,bottom:40,left:50},c=512-s.left-s.right,l=512-s.top-s.bottom,u=r(o).append(`svg`).attr(`id`,`d3-sim`).attr(`width`,512).attr(`height`,512).style(`display`,`block`).style(`margin`,`20px auto 0`).append(`g`).attr(`transform`,`translate(${s.left},${s.top})`),d=e().domain([0,1]).range([0,c]),f=e().domain([0,1]).range([l,0]);u.append(`g`).attr(`transform`,`translate(0,${l})`).call(n(d).ticks(5)),u.append(`g`).call(t(f).ticks(5)),u.selectAll(`.domain, .tick line`).attr(`stroke`,`#000`),u.selectAll(`.tick text`).style(`font-family`,`SF Mono, Menlo, monospace`).style(`font-size`,`9pt`).attr(`fill`,`#666`),u.append(`text`).attr(`x`,c).attr(`y`,l+35).style(`text-anchor`,`end`).style(`font-family`,`SF Mono, Menlo, monospace`).style(`font-size`,`9pt`).text(`x`),u.append(`text`).attr(`x`,-10).attr(`y`,-5).style(`font-family`,`SF Mono, Menlo, monospace`).style(`font-size`,`9pt`).text(`c`);let p=u.append(`text`).attr(`x`,4).attr(`y`,15).style(`font-family`,`SF Mono, Menlo, monospace`).style(`font-size`,`9pt`).attr(`fill`,`#666`),m=u.append(`path`).attr(`fill`,`none`).attr(`stroke`,`#000`).attr(`stroke-width`,1.5),h=.3,g=new Float32Array(200).fill(0);g[100]=1;let _=0,v,y=!1;function b(){g.fill(0),g[100]=1,_=0}let x=a(o,{onPause:e=>{y=e},onReplay:()=>{b()}});function S(){let e=new Float32Array(200);for(let t=0;t<200;t++){let n=g[(t-1+200)%200],r=g[(t+1)%200];e[t]=Math.max(0,g[t]+h*.2*(n-2*g[t]+r))}g=e,_+=h}function C(){let e=Array.from(g).map((e,t)=>[t/199,e]),t=i().x(e=>d(e[0])).y(e=>f(e[1]));m.attr(`d`,t(e)),p.text(`D·∇²c  t=${_.toFixed(1)}`)}function w(){if(v=requestAnimationFrame(w),!y){for(let e=0;e<4;e++)S();_>500&&b()}C()}return C(),w(),()=>{cancelAnimationFrame(v),x.remove(),r(o).select(`#d3-sim`).remove()}}};export{o as default};

@@ -311,6 +311,38 @@ code {
   z-index: 10;
 }
 
+/* ── Simulation controls bar ── */
+.sim-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+  width: 512px;
+  margin: 0 auto;
+}
+
+.sim-btn {
+  font-family: var(--font);
+  font-size: 9pt;
+  background: var(--bg);
+  color: var(--fg);
+  border: var(--col-border);
+  padding: 3px 14px;
+  cursor: pointer;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+.sim-btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.sim-btn[aria-pressed="true"] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
 /* ── Misc utilities ── */
 .muted { color: var(--muted); }
 .bold { font-weight: bold; }

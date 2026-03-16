@@ -7,6 +7,7 @@ import * as THREE from 'three'
 import Stats from 'stats.js'
 import { GPUSim } from '../gpu/GPUSim.js'
 import { GuiManager } from '../gui/GuiManager.js'
+import { createSimControls } from './simControls.js'
 
 /**
  * @param {HTMLElement} container
@@ -72,10 +73,16 @@ export function startGPULoop(container, options = {}) {
     wrap.style.position = 'relative'
   }
 
+  // Standardised controls bar (pause / replay)
+  let paused = false
+  const controls = createSimControls(container, {
+    onPause: (p) => { paused = p },
+    onReplay: () => { sim.reset(simParams) },
+  })
+
   // GUI
   let currentVizMode = vizMode
   let currentStepsPerFrame = stepsPerFrame
-  let paused = false
 
   if (showGui) {
     const gui = GuiManager.create(wrap)
@@ -93,11 +100,8 @@ export function startGPULoop(container, options = {}) {
       .name('mode').onChange(v => { currentVizMode = v })
 
     const ctrlFolder = gui.addFolder('Control')
-    const ctrlObj = { stepsPerFrame: currentStepsPerFrame, paused }
-    ctrlFolder.add(ctrlObj, 'stepsPerFrame', 1, 32, 1).name('steps/frame')
+    ctrlFolder.add({ stepsPerFrame: currentStepsPerFrame }, 'stepsPerFrame', 1, 32, 1).name('steps/frame')
       .onChange(v => { currentStepsPerFrame = v })
-    ctrlFolder.add(ctrlObj, 'paused').name('pause').onChange(v => { paused = v })
-    ctrlFolder.add({ reset: () => sim.reset(simParams) }, 'reset').name('reset')
 
     simFolder.open()
     vizFolder.open()
@@ -127,6 +131,7 @@ export function startGPULoop(container, options = {}) {
   return function cleanup() {
     cancelAnimationFrame(frameId)
     ro.disconnect()
+    controls.remove()
     sim.dispose()
     renderer.dispose()
     container.innerHTML = ''

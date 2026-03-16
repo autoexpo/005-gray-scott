@@ -1,5 +1,6 @@
 /** Step 14: Visualizing 1D output — bar chart. */
 import * as d3 from 'd3'
+import { createSimControls } from '../../utils/simControls.js'
 export default {
   title: '1D Visualization: Line Chart',
   chapter: 2,
@@ -62,7 +63,18 @@ Interesting patterns (spots, stripes) require 2D. In 1D we see traveling waves a
     const m = Math.floor(N/2)
     for (let i=m-6;i<=m+6;i++){u[i]=0;v[i]=1}
     const p = {f:0.055,k:0.062,Du:0.2097,Dv:0.105,dt:1.0}
-    let t=0, animId
+    let t=0, animId, paused=false
+
+    function reset() {
+      u.fill(1); v.fill(0)
+      for (let i=m-6;i<=m+6;i++){u[i]=0;v[i]=1}
+      t=0
+    }
+
+    const controls = createSimControls(container, {
+      onPause: (p) => { paused = p },
+      onReplay: () => { reset() },
+    })
 
     function step() {
       for(let i=0;i<N;i++){
@@ -86,13 +98,14 @@ Interesting patterns (spots, stripes) require 2D. In 1D we see traveling waves a
 
     function animate(){
       animId=requestAnimationFrame(animate)
-      for(let i=0;i<6;i++)step()
+      if (!paused) for(let i=0;i<6;i++)step()
       render()
     }
     animate()
 
     return ()=>{
       cancelAnimationFrame(animId)
+      controls.remove()
       d3.select(container).select('#d3-sim').remove()
     }
   }
