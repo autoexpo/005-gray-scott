@@ -3,15 +3,17 @@
  *
  * Usage:
  *   const controls = createSimControls(container, {
- *     onPause:  (paused) => { ... },   // called when pause toggled
- *     onReplay: (reset)  => { ... },   // called when replay clicked
+ *     onPause:  (paused) => { ... },
+ *     onReplay: () => { ... },
+ *     extraButtons: [
+ *       { label: 'Stats', onToggle: (active) => { ... } },
+ *     ],
  *   })
- *   // later:
  *   controls.remove()
  *
  * The bar is appended directly to `container` below the simulation.
  */
-export function createSimControls(container, { onPause, onReplay } = {}) {
+export function createSimControls(container, { onPause, onReplay, extraButtons = [] } = {}) {
   const bar = document.createElement('div')
   bar.className = 'sim-controls'
 
@@ -26,6 +28,21 @@ export function createSimControls(container, { onPause, onReplay } = {}) {
 
   bar.appendChild(pauseBtn)
   bar.appendChild(replayBtn)
+
+  // Extra toggle buttons (e.g. Stats, Parameters)
+  for (const { label, onToggle } of extraButtons) {
+    const btn = document.createElement('button')
+    btn.className = 'sim-btn sim-btn-toggle'
+    btn.textContent = label
+    btn.setAttribute('aria-pressed', 'false')
+    btn.addEventListener('click', () => {
+      const active = btn.getAttribute('aria-pressed') === 'true'
+      btn.setAttribute('aria-pressed', String(!active))
+      if (onToggle) onToggle(!active)
+    })
+    bar.appendChild(btn)
+  }
+
   container.appendChild(bar)
 
   let paused = false
@@ -38,7 +55,6 @@ export function createSimControls(container, { onPause, onReplay } = {}) {
   })
 
   replayBtn.addEventListener('click', () => {
-    // Reset pause state when replaying
     if (paused) {
       paused = false
       pauseBtn.textContent = '⏸ Pause'

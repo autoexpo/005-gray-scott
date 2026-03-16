@@ -102,6 +102,7 @@ pingpong.swap()
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: true,
     })
   }
 }

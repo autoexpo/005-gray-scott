@@ -18,7 +18,6 @@ import { createSimControls } from './simControls.js'
  * @param {string} [options.vizMode='grayscale'] - visualization mode
  * @param {number} [options.stepsPerFrame=8]
  * @param {boolean} [options.showGui=true]
- * @param {boolean} [options.showStats=true]
  * @param {boolean} [options.mouse=true] - enable mouse seeding
  * @param {function} [options.onGui] - callback(gui, sim, params) to add GUI controls
  * @param {function} [options.onFrame] - callback(sim, frame) per frame
@@ -32,13 +31,12 @@ export function startGPULoop(container, options = {}) {
     vizMode = 'invert',
     stepsPerFrame = 8,
     showGui = true,
-    showStats = true,
     mouse = true,
     onGui = null,
     onFrame = null,
   } = options
 
-  // Centered 512×512 square wrapper — keeps 1:1 aspect, consistent with canvas2d steps
+  // Centered 512×512 square wrapper
   const S = 512
   const wrap = document.createElement('div')
   wrap.id = 'sim-canvas'
@@ -47,13 +45,10 @@ export function startGPULoop(container, options = {}) {
 
   // Three.js renderer sized to the square
   const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true })
-  renderer.setPixelRatio(1) // pixel-perfect for sim
+  renderer.setPixelRatio(1)
   renderer.setSize(S, S)
   renderer.domElement.id = 'three-canvas'
   wrap.appendChild(renderer.domElement)
-
-  // No resize observer needed — fixed square
-  const ro = { disconnect: () => {} }
 
   // GPU sim
   const sim = new GPUSim(renderer, size, stencil)
@@ -63,29 +58,20 @@ export function startGPULoop(container, options = {}) {
   // Mouse seeding
   if (mouse) sim.seed.attachTo(renderer.domElement)
 
-  // Stats
-  let stats = null
-  if (showStats) {
-    stats = new Stats()
-    stats.showPanel(0) // FPS
-    stats.dom.style.cssText = 'position:absolute;top:4px;left:4px;'
-    wrap.appendChild(stats.dom)
-    wrap.style.position = 'relative'
-  }
+  // Stats — hidden by default
+  const stats = new Stats()
+  stats.showPanel(0)
+  stats.dom.style.cssText = 'position:absolute;top:4px;left:4px;display:none;'
+  wrap.appendChild(stats.dom)
 
-  // Standardised controls bar (pause / replay)
-  let paused = false
-  const controls = createSimControls(container, {
-    onPause: (p) => { paused = p },
-    onReplay: () => { sim.reset(simParams) },
-  })
-
-  // GUI
+  // GUI — built but hidden by default
+  let gui = null
   let currentVizMode = vizMode
   let currentStepsPerFrame = stepsPerFrame
 
   if (showGui) {
-    const gui = GuiManager.create(wrap)
+    gui = GuiManager.create(wrap)
+    gui.domElement.style.display = 'none'
 
     const simFolder = gui.addFolder('Simulation')
     simFolder.add(simParams, 'f', 0.01, 0.12, 0.001).name('f (feed)').onChange(v => { simParams.f = v })
@@ -110,12 +96,37 @@ export function startGPULoop(container, options = {}) {
     if (onGui) onGui(gui, sim, simParams)
   }
 
+  // Controls bar: Pause, Replay, + Stats and Parameters toggles
+  let paused = false
+  const extraButtons = [
+    {
+      label: 'Stats',
+      onToggle: (active) => {
+        stats.dom.style.display = active ? 'block' : 'none'
+      },
+    },
+  ]
+  if (showGui && gui) {
+    extraButtons.push({
+      label: 'Parameters',
+      onToggle: (active) => {
+        gui.domElement.style.display = active ? 'block' : 'none'
+      },
+    })
+  }
+
+  const controls = createSimControls(container, {
+    onPause: (p) => { paused = p },
+    onReplay: () => { sim.reset(simParams) },
+    extraButtons,
+  })
+
   // Animation loop
   let frameId = null
   let frame = 0
   const animate = () => {
     frameId = requestAnimationFrame(animate)
-    if (stats) stats.begin()
+    stats.begin()
 
     if (!paused) {
       sim.step(simParams, currentStepsPerFrame)
@@ -124,14 +135,14 @@ export function startGPULoop(container, options = {}) {
     if (onFrame) onFrame(sim, frame)
     frame++
 
-    if (stats) stats.end()
+    stats.end()
   }
   animate()
 
   return function cleanup() {
     cancelAnimationFrame(frameId)
-    ro.disconnect()
     controls.remove()
+    if (gui) gui.destroy()
     sim.dispose()
     renderer.dispose()
     container.innerHTML = ''
