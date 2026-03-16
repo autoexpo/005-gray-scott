@@ -2,6 +2,7 @@
  * Step 3: Diffusion alone — Fick's Law and the heat equation.
  * Animated 1D heat equation demo.
  */
+import * as d3 from 'd3'
 
 export default {
   title: "Diffusion: Fick's Law",
@@ -100,21 +101,44 @@ function animate() {
 `,
 
   init(container) {
-    const S = 512 // square canvas size
-    const canvas = document.createElement('canvas')
-    canvas.width = S
-    canvas.height = S
-    canvas.id = 'canvas2d-sim'
-    canvas.style.cssText = 'display:block; width:512px; height:512px; margin:auto; margin-top:20px'
-    container.appendChild(canvas)
-    const ctx = canvas.getContext('2d')
+    const S = 512
+    const margin = { top: 20, right: 20, bottom: 40, left: 50 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    const x = d3.scaleLinear().domain([0, 1]).range([0, W])
+    const y = d3.scaleLinear().domain([0, 1]).range([H, 0])
+
+    g.append('g').attr('transform', `translate(0,${H})`).call(d3.axisBottom(x).ticks(5))
+    g.append('g').call(d3.axisLeft(y).ticks(5))
+
+    // Style axes
+    g.selectAll('.domain, .tick line').attr('stroke', '#000')
+    g.selectAll('.tick text').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
+
+    // Labels
+    g.append('text').attr('x', W).attr('y', H + 35).style('text-anchor', 'end').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').text('x')
+    g.append('text').attr('x', -10).attr('y', -5).style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').text('c')
+
+    // Time label
+    const timeLabel = g.append('text').attr('x', 4).attr('y', 15).style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
+
+    // Create path element for the line
+    const path = g.append('path').attr('fill', 'none').attr('stroke', '#000').attr('stroke-width', 1.5)
 
     const N = 200
     const D = 0.2
     const dt = 0.3
     let c = new Float32Array(N).fill(0)
     c[Math.floor(N/2)] = 1.0
-
     let t = 0
     let animId
 
@@ -128,53 +152,30 @@ function animate() {
       t += dt
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, S, S)
-      ctx.fillStyle = '#fff'
-      ctx.fillRect(0, 0, S, S)
-
-      // Plot concentration
-      const pad = 24, plotH = S - pad * 2
-      ctx.strokeStyle = '#000'
-      ctx.lineWidth = 1.5
-      ctx.beginPath()
-      for (let i = 0; i < N; i++) {
-        const x = pad + (i / (N-1)) * (S - pad*2)
-        const y = (S - pad) - c[i] * plotH
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
-      }
-      ctx.stroke()
-
-      // Axes
-      ctx.strokeStyle = '#000'
-      ctx.lineWidth = 0.5
-      ctx.beginPath()
-      ctx.moveTo(pad, S - pad); ctx.lineTo(S - pad, S - pad)
-      ctx.moveTo(pad, pad); ctx.lineTo(pad, S - pad)
-      ctx.stroke()
-
-      // Label
-      ctx.fillStyle = '#666'
-      ctx.font = '9pt SF Mono, monospace'
-      ctx.fillText(`D·∇²c  t=${t.toFixed(1)}`, pad + 4, pad + 12)
-      ctx.fillText('x', S - pad, S - pad - 4)
-      ctx.fillText('c', pad + 4, pad)
+    function render() {
+      const data = Array.from(c).map((v, i) => [i / (N-1), v])
+      const line = d3.line().x(d => x(d[0])).y(d => y(d[1]))
+      path.attr('d', line(data))
+      timeLabel.text(`D·∇²c  t=${t.toFixed(1)}`)
     }
 
     function animate() {
       animId = requestAnimationFrame(animate)
       for (let i = 0; i < 4; i++) step()
-      draw()
+      render()
       // Reset when fully spread
       if (t > 500) {
         c.fill(0); c[Math.floor(N/2)] = 1.0; t = 0
       }
     }
+
+    // Initial render and then start animation
+    render()
     animate()
 
     return () => {
       cancelAnimationFrame(animId)
-      container.innerHTML = ''
+      d3.select(container).select('#d3-sim').remove()
     }
   }
 }

@@ -1,7 +1,7 @@
 /**
  * Step 5: Reaction alone — autocatalysis, the U·V² term.
  */
-import { makeCanvas2D } from '../../utils/canvas2d.js'
+import * as d3 from 'd3'
 
 export default {
   title: 'Reaction: Autocatalysis',
@@ -101,16 +101,41 @@ for (let t = 0; t < 2000; t++) {
 `,
 
   init(container) {
-    const { canvas, disconnect } = makeCanvas2D(container, false)
-    const ctx = canvas.getContext('2d')
-    let animId
+    const S = 512
+    const margin = { top: 60, right: 20, bottom: 50, left: 60 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    const x = d3.scaleLinear().domain([0, 1]).range([0, W])
+    const y = d3.scaleLinear().domain([0, 0.5]).range([H, 0])
+
+    g.append('g').attr('transform', `translate(0,${H})`).call(d3.axisBottom(x).ticks(5))
+    g.append('g').call(d3.axisLeft(y).ticks(5))
+
+    // Style axes
+    g.selectAll('.domain, .tick line').attr('stroke', '#000')
+    g.selectAll('.tick text').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
+
+    // Labels
+    g.append('text').attr('x', W/2).attr('y', H + 40).style('text-anchor', 'middle').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').text('U (food)')
+    g.append('text').attr('x', -40).attr('y', H/2).style('text-anchor', 'middle').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('transform', `rotate(-90, -40, ${H/2})`).text('V (activator)')
+    g.append('text').attr('x', 0).attr('y', -10).style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666').text('Phase plane: reaction only (no diffusion)')
 
     // Trace for multiple (f,k) pairs
     const configs = [
-      { f: 0.055, k: 0.062, label: 'f=0.055 k=0.062 (spots)' },
-      { f: 0.028, k: 0.053, label: 'f=0.028 k=0.053 (mitosis)' },
-      { f: 0.035, k: 0.065, label: 'f=0.035 k=0.065 (stable)' },
+      { f: 0.055, k: 0.062, label: 'f=0.055 k=0.062 (spots)', color: '#000' },
+      { f: 0.028, k: 0.053, label: 'f=0.028 k=0.053 (mitosis)', color: '#555' },
+      { f: 0.035, k: 0.065, label: 'f=0.035 k=0.065 (stable)', color: '#999' },
     ]
+
     const traces = configs.map(cfg => {
       let u = 1.0, v = 0.05
       const pts = []
@@ -120,67 +145,59 @@ for (let t = 0; t < 2000; t++) {
         const dv = uvv - (cfg.f + cfg.k) * v
         u = Math.max(0, Math.min(1, u + du))
         v = Math.max(0, Math.min(1, v + dv))
-        if (t % 5 === 0) pts.push({ u, v })
+        if (t % 5 === 0) pts.push([u, v])
       }
-      return { pts, label: cfg.label }
+      return { pts, label: cfg.label, color: cfg.color }
     })
 
-    function draw() {
-      const W = canvas.width, H = canvas.height
-      ctx.clearRect(0, 0, W, H)
-      ctx.fillStyle = '#fff'
-      ctx.fillRect(0, 0, W, H)
+    // Draw phase trajectories
+    traces.forEach((tr, ti) => {
+      const line = d3.line().x(d => x(d[0])).y(d => y(d[1]))
 
-      const pad = 30
-      const pw = W - pad*2, ph = H - pad*2 - 30
+      g.append('path')
+        .datum(tr.pts)
+        .attr('fill', 'none')
+        .attr('stroke', tr.color)
+        .attr('stroke-width', 1.5)
+        .attr('d', line)
 
-      // Axes
-      ctx.strokeStyle = '#000'
-      ctx.lineWidth = 0.5
-      ctx.beginPath()
-      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad - 30)
-      ctx.moveTo(pad, H - pad - 30); ctx.lineTo(W - pad, H - pad - 30)
-      ctx.stroke()
+      // Start point (circle)
+      g.append('circle')
+        .attr('cx', x(tr.pts[0][0]))
+        .attr('cy', y(tr.pts[0][1]))
+        .attr('r', 3)
+        .attr('fill', 'none')
+        .attr('stroke', tr.color)
+        .attr('stroke-width', 1.5)
 
-      ctx.fillStyle = '#888'
-      ctx.font = '9pt SF Mono, monospace'
-      ctx.fillText('U (food)', W/2 - 20, H - 10)
-      ctx.fillText('V (activator)', 2, H/2)
-      ctx.fillText('Phase plane: reaction only (no diffusion)', pad, pad - 6)
+      // End point (dot)
+      const last = tr.pts[tr.pts.length - 1]
+      g.append('circle')
+        .attr('cx', x(last[0]))
+        .attr('cy', y(last[1]))
+        .attr('r', 2)
+        .attr('fill', tr.color)
+    })
 
-      // Phase trajectories
-      traces.forEach((tr, ti) => {
-        ctx.strokeStyle = ['#000', '#555', '#999'][ti]
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        tr.pts.forEach((pt, i) => {
-          const x = pad + pt.u * pw
-          const y = H - pad - 30 - pt.v * ph
-          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
-        })
-        ctx.stroke()
+    // Legend
+    const legend = g.append('g').attr('transform', `translate(${W - 200}, 20)`)
+    traces.forEach((tr, ti) => {
+      const yPos = ti * 14
+      legend.append('rect')
+        .attr('x', 0).attr('y', yPos - 8)
+        .attr('width', 12).attr('height', 2)
+        .attr('fill', tr.color)
 
-        // Label
-        const last = tr.pts[tr.pts.length - 1]
-        ctx.fillStyle = '#555'
-        ctx.font = '8pt monospace'
-        ctx.fillText('•', pad + last.u * pw, H - pad - 30 - last.v * ph)
-      })
+      legend.append('text')
+        .attr('x', 16).attr('y', yPos - 3)
+        .style('font-family', 'SF Mono, Menlo, monospace')
+        .style('font-size', '8pt')
+        .attr('fill', tr.color)
+        .text(tr.label)
+    })
 
-      // Legend
-      traces.forEach((tr, ti) => {
-        const y = pad + 16 + ti * 14
-        ctx.fillStyle = ['#000', '#555', '#999'][ti]
-        ctx.font = '8pt monospace'
-        ctx.fillText(tr.label, pad + 4, y)
-      })
-    }
-
-    requestAnimationFrame(draw)
     return () => {
-      cancelAnimationFrame(animId)
-      disconnect()
-      container.innerHTML = ''
+      d3.select(container).select('#d3-sim').remove()
     }
   }
 }

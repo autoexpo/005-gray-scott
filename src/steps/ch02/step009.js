@@ -1,7 +1,7 @@
 /**
  * Step 9: Setting up a 1D grid — typed arrays, indexing.
  */
-import { makeCanvas2D, drawBarChart } from '../../utils/canvas2d.js'
+import * as d3 from 'd3'
 
 export default {
   title: '1D Grid: Typed Arrays',
@@ -108,8 +108,28 @@ export default {
 `,
 
   init(container) {
-    const { canvas, disconnect } = makeCanvas2D(container, false)
-    const ctx = canvas.getContext('2d')
+    const S = 512
+    const margin = { top: 20, right: 20, bottom: 60, left: 50 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    const x = d3.scaleLinear().domain([0, 1]).range([0, W])
+    const y = d3.scaleLinear().domain([0, 1]).range([H, 0])
+
+    g.append('g').attr('transform', `translate(0,${H})`).call(d3.axisBottom(x).ticks(5))
+    g.append('g').call(d3.axisLeft(y).ticks(5))
+
+    // Style axes
+    g.selectAll('.domain, .tick line').attr('stroke', '#000')
+    g.selectAll('.tick text').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
 
     const N = 200
     const u = new Float32Array(N).fill(1.0)
@@ -117,51 +137,46 @@ export default {
     const mid = Math.floor(N/2)
     for (let i = mid-5; i <= mid+5; i++) { u[i]=0; v[i]=1 }
 
-    function draw() {
-      const W = canvas.width, H = canvas.height
-      ctx.clearRect(0,0,W,H)
-      ctx.fillStyle='#fff'
-      ctx.fillRect(0,0,W,H)
+    // Create lines for U and V
+    const lineGen = d3.line().x(d => x(d[0])).y(d => y(d[1]))
 
-      const pad=24
-      const pw=W-pad*2, ph=H-pad*2-30
+    const uData = Array.from(u).map((val, i) => [i / (N-1), val])
+    const vData = Array.from(v).map((val, i) => [i / (N-1), val])
 
-      // u in black, v in gray
-      ctx.strokeStyle='#000'
-      ctx.lineWidth=1.5
-      ctx.beginPath()
-      for(let i=0;i<N;i++){
-        const x=pad+(i/(N-1))*pw
-        const y=pad+ph-u[i]*ph
-        i?ctx.lineTo(x,y):ctx.moveTo(x,y)
-      }
-      ctx.stroke()
+    // U line (black)
+    g.append('path')
+      .datum(uData)
+      .attr('fill', 'none')
+      .attr('stroke', '#000')
+      .attr('stroke-width', 1.5)
+      .attr('d', lineGen)
 
-      ctx.strokeStyle='#888'
-      ctx.lineWidth=1.5
-      ctx.beginPath()
-      for(let i=0;i<N;i++){
-        const x=pad+(i/(N-1))*pw
-        const y=pad+ph-v[i]*ph
-        i?ctx.lineTo(x,y):ctx.moveTo(x,y)
-      }
-      ctx.stroke()
+    // V line (gray, dashed)
+    g.append('path')
+      .datum(vData)
+      .attr('fill', 'none')
+      .attr('stroke', '#888')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '3,3')
+      .attr('d', lineGen)
 
-      // Axes
-      ctx.strokeStyle='#000'
-      ctx.lineWidth=0.5
-      ctx.beginPath()
-      ctx.moveTo(pad,pad+ph); ctx.lineTo(W-pad,pad+ph)
-      ctx.moveTo(pad,pad); ctx.lineTo(pad,pad+ph)
-      ctx.stroke()
+    // Legend
+    const legend = g.append('g').attr('transform', `translate(10, 10)`)
+    legend.append('line').attr('x1', 0).attr('x2', 15).attr('y1', 0).attr('y2', 0).attr('stroke', '#000').attr('stroke-width', 1.5)
+    legend.append('text').attr('x', 20).attr('y', 4).style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '8pt').text('U=1')
+    legend.append('line').attr('x1', 0).attr('x2', 15).attr('y1', 12).attr('y2', 12).attr('stroke', '#888').attr('stroke-width', 1.5).attr('stroke-dasharray', '3,3')
+    legend.append('text').attr('x', 20).attr('y', 16).style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '8pt').text('V=0 (seeded at center)')
 
-      ctx.fillStyle='#000'
-      ctx.font='9pt SF Mono, monospace'
-      ctx.fillText('Initial conditions: U=1 (black), V=0 (gray), V-seed at center',pad,H-8)
-      ctx.fillText('u=1',W-pad-20,pad+ph-4)
+    // Bottom label
+    g.append('text')
+      .attr('x', 0).attr('y', H + 50)
+      .style('font-family', 'SF Mono, Menlo, monospace')
+      .style('font-size', '9pt')
+      .attr('fill', '#000')
+      .text('Initial conditions: U=1 (black), V=0 (gray), V-seed at center')
+
+    return () => {
+      d3.select(container).select('#d3-sim').remove()
     }
-
-    requestAnimationFrame(draw)
-    return () => { disconnect(); container.innerHTML='' }
   }
 }

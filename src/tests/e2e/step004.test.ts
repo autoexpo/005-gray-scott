@@ -1,23 +1,25 @@
 import { test, expect } from '@playwright/test'
-import { readPixels, darkPixelRatio, pixelVariance } from './utils/pixels.js'
 
-test.describe('Step 4: 2D Diffusion', () => {
-  test('canvas shows diffusing blob (non-trivial dark pixels)', async ({ page }) => {
+test.describe('Step 4: Laplacian Grid', () => {
+  test('D3 SVG shows interactive grid with rectangles', async ({ page }) => {
     const errors: string[] = []
     page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()) })
     page.on('pageerror', err => errors.push(err.message))
 
     await page.goto('/#4')
-    await page.waitForSelector('#canvas2d-sim', { timeout: 10_000 })
-    await page.waitForTimeout(3_000)
+    await page.waitForSelector('#d3-sim rect', { timeout: 10_000 })
 
-    const pixels = await readPixels(page)
-    const dark = darkPixelRatio(pixels, 50)
-    const variance = pixelVariance(pixels)
+    const rects = await page.$$('#d3-sim rect')
+    expect(rects.length).toBeGreaterThan(0)
 
-    // Should have visible dark content (the diffusing blob)
-    expect(dark).toBeGreaterThan(0.003)
-    expect(variance).toBeGreaterThan(10)
+    // Test hover interaction by moving mouse over SVG
+    await page.hover('#d3-sim')
+    await page.waitForTimeout(500)
+
+    // Should still have rectangles after interaction
+    const rectsAfter = await page.$$('#d3-sim rect')
+    expect(rectsAfter.length).toBeGreaterThanOrEqual(rects.length)
+
     expect(errors).toHaveLength(0)
   })
 })

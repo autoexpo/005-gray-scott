@@ -1,23 +1,21 @@
 import { test, expect } from '@playwright/test'
-import { readPixels, darkPixelRatio, countDistinctGreyLevels } from './utils/pixels.js'
 
 test.describe('Step 5: Reaction / Autocatalysis (phase plane)', () => {
-  test('phase plane has multiple grey levels (trajectory curves visible)', async ({ page }) => {
+  test('D3 SVG shows phase plane with trajectory paths', async ({ page }) => {
     const errors: string[] = []
     page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()) })
     page.on('pageerror', err => errors.push(err.message))
 
     await page.goto('/#5')
-    await page.waitForSelector('#canvas2d-sim', { timeout: 10_000 })
-    await page.waitForTimeout(1_000)
+    await page.waitForSelector('#d3-sim path', { timeout: 10_000 })
 
-    const pixels = await readPixels(page)
-    const dark = darkPixelRatio(pixels, 100)
-    const greyLevels = countDistinctGreyLevels(pixels, 20)
+    const paths = await page.$$('#d3-sim path')
+    expect(paths.length).toBeGreaterThanOrEqual(3) // 3 trajectory paths
 
-    // Phase plane should show axis lines + 3 trajectory curves
-    expect(dark).toBeGreaterThan(0.0005)
-    expect(greyLevels).toBeGreaterThanOrEqual(3)
+    // Check for circles (start/end points)
+    const circles = await page.$$('#d3-sim circle')
+    expect(circles.length).toBeGreaterThanOrEqual(3) // At least 3 circles
+
     expect(errors).toHaveLength(0)
   })
 })

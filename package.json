@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/autoexpo/005-gray-scott#readme",
   "dependencies": {
+    "d3": "^7.9.0",
     "lil-gui": "^0.21.0",
     "stats.js": "^0.17.0",
     "three": "^0.183.2"

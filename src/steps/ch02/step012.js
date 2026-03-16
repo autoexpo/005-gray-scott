@@ -1,7 +1,7 @@
 /**
  * Step 12: Euler integration in 1D — the full step function.
  */
-import { makeCanvas2D } from '../../utils/canvas2d.js'
+import * as d3 from 'd3'
 
 export default {
   title: '1D Euler Integration Step',
@@ -70,8 +70,40 @@ export default {
 `,
 
   init(container) {
-    const { canvas, disconnect } = makeCanvas2D(container, false)
-    const ctx = canvas.getContext('2d')
+    const S = 512
+    const margin = { top: 20, right: 20, bottom: 60, left: 50 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    const x = d3.scaleLinear().domain([0, 1]).range([0, W])
+    const y = d3.scaleLinear().domain([0, 1]).range([H, 0])
+
+    g.append('g').attr('transform', `translate(0,${H})`).call(d3.axisBottom(x).ticks(5))
+    g.append('g').call(d3.axisLeft(y).ticks(5))
+
+    // Style axes
+    g.selectAll('.domain, .tick line').attr('stroke', '#000')
+    g.selectAll('.tick text').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
+
+    // Create path elements for U and V lines
+    const uPath = g.append('path').attr('fill', 'none').attr('stroke', '#000').attr('stroke-width', 1.5)
+    const vPath = g.append('path').attr('fill', 'none').attr('stroke', '#999').attr('stroke-width', 1)
+
+    // Time and parameter label
+    const infoLabel = g.append('text')
+      .attr('x', 0).attr('y', H + 50)
+      .style('font-family', 'SF Mono, Menlo, monospace')
+      .style('font-size', '9pt')
+      .attr('fill', '#666')
+
     const N = 200
     let u = new Float32Array(N).fill(1)
     let v = new Float32Array(N).fill(0)
@@ -95,37 +127,26 @@ export default {
       t++
     }
 
-    function draw() {
-      const W=canvas.width,H=canvas.height
-      ctx.clearRect(0,0,W,H)
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H)
-      const pad=24,ph=H-pad*2-20
-      ctx.strokeStyle='#000'; ctx.lineWidth=1.5
-      ctx.beginPath()
-      for(let i=0;i<N;i++){
-        const x=pad+(i/(N-1))*(W-pad*2)
-        const y=pad+ph-u[i]*ph
-        i?ctx.lineTo(x,y):ctx.moveTo(x,y)
-      }
-      ctx.stroke()
-      ctx.strokeStyle='#999'; ctx.lineWidth=1
-      ctx.beginPath()
-      for(let i=0;i<N;i++){
-        const x=pad+(i/(N-1))*(W-pad*2)
-        const y=pad+ph-v[i]*ph
-        i?ctx.lineTo(x,y):ctx.moveTo(x,y)
-      }
-      ctx.stroke()
-      ctx.fillStyle='#666'; ctx.font='9pt SF Mono,monospace'
-      ctx.fillText(`t=${t}  U (black)  V (gray)`,pad,H-6)
+    function render() {
+      const uData = Array.from(u).map((val, i) => [i / (N-1), val])
+      const vData = Array.from(v).map((val, i) => [i / (N-1), val])
+
+      uPath.attr('d', d3.line().x(d => x(d[0])).y(d => y(d[1]))(uData))
+      vPath.attr('d', d3.line().x(d => x(d[0])).y(d => y(d[1]))(vData))
+
+      infoLabel.text(`t=${t}  U (black)  V (gray)`)
     }
 
     function animate() {
-      animId=requestAnimationFrame(animate)
+      animId = requestAnimationFrame(animate)
       for(let i=0;i<4;i++) step()
-      draw()
+      render()
     }
     animate()
-    return () => { cancelAnimationFrame(animId); disconnect(); container.innerHTML='' }
+
+    return () => {
+      cancelAnimationFrame(animId)
+      d3.select(container).select('#d3-sim').remove()
+    }
   }
 }

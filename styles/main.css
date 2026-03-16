@@ -261,6 +261,19 @@ code {
   display: block;
 }
 
+/* D3 SVG simulations */
+#d3-sim {
+  display: block;
+  font-family: 'SF Mono', 'Menlo', monospace;
+}
+#d3-sim .domain, #d3-sim .tick line {
+  stroke: #000;
+}
+#d3-sim .tick text {
+  fill: #666;
+  font-size: 9pt;
+}
+
 /* Stats.js override to stay in top-left of viz column */
 #viz-container > .stats {
   position: absolute !important;

@@ -2,7 +2,7 @@
  * Step 8: Phase space overview — the (f,k) parameter map.
  * Shows a pre-computed grid of pattern thumbnails.
  */
-import { makeCanvas2D } from '../../utils/canvas2d.js'
+import * as d3 from 'd3'
 
 export default {
   title: 'Phase Space: the (f,k) Map',
@@ -90,8 +90,63 @@ export default {
 `,
 
   init(container) {
-    const { canvas, disconnect } = makeCanvas2D(container, false)
-    const ctx = canvas.getContext('2d')
+    const S = 512
+    const margin = { top: 30, right: 120, bottom: 60, left: 60 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    // f range: 0.01 to 0.12, k range: 0.04 to 0.075
+    const fMin = 0.01, fMax = 0.12
+    const kMin = 0.04, kMax = 0.075
+
+    const x = d3.scaleLinear().domain([fMin, fMax]).range([0, W])
+    const y = d3.scaleLinear().domain([kMin, kMax]).range([H, 0])
+
+    // Background regions (approximate)
+    const regions = [
+      { f1:0.01,f2:0.05, k1:0.044,k2:0.060, label:'mitosis', gray:0.92 },
+      { f1:0.03,f2:0.07, k1:0.056,k2:0.068, label:'spots/coral', gray:0.80 },
+      { f1:0.055,f2:0.09,k1:0.059,k2:0.065, label:'stripes', gray:0.70 },
+      { f1:0.07,f2:0.11, k1:0.054,k2:0.062, label:'worms/bubbles', gray:0.85 },
+    ]
+
+    regions.forEach(r => {
+      const gVal = Math.round(r.gray * 255)
+      g.append('rect')
+        .attr('x', x(r.f1))
+        .attr('y', y(r.k2))
+        .attr('width', x(r.f2) - x(r.f1))
+        .attr('height', y(r.k1) - y(r.k2))
+        .attr('fill', `rgb(${gVal},${gVal},${gVal})`)
+
+      g.append('text')
+        .attr('x', x(r.f1) + 2)
+        .attr('y', y(r.k2) + 11)
+        .style('font-family', 'SF Mono, Menlo, monospace')
+        .style('font-size', '8pt')
+        .attr('fill', '#666')
+        .text(r.label)
+    })
+
+    // Axes
+    g.append('g').attr('transform', `translate(0,${H})`).call(d3.axisBottom(x).tickFormat(d3.format('.2f')))
+    g.append('g').call(d3.axisLeft(y).tickFormat(d3.format('.3f')))
+
+    // Style axes
+    g.selectAll('.domain, .tick line').attr('stroke', '#000')
+    g.selectAll('.tick text').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '7pt').attr('fill', '#555')
+
+    // Axis labels
+    g.append('text').attr('x', W/2).attr('y', H + 50).style('text-anchor', 'middle').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').text('f (feed rate) →')
+    g.append('text').attr('x', -40).attr('y', H/2).style('text-anchor', 'middle').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('transform', `rotate(-90, -40, ${H/2})`).text('k (kill rate) →')
 
     const presets = [
       { f: 0.035, k: 0.065, label: 'Spots' },
@@ -104,96 +159,25 @@ export default {
       { f: 0.026, k: 0.051, label: 'Chaos' },
     ]
 
-    function draw() {
-      const W = canvas.width, H = canvas.height
-      ctx.clearRect(0, 0, W, H)
-      ctx.fillStyle = '#fff'
-      ctx.fillRect(0, 0, W, H)
+    // Plot preset points
+    presets.forEach(p => {
+      g.append('circle')
+        .attr('cx', x(p.f))
+        .attr('cy', y(p.k))
+        .attr('r', 4)
+        .attr('fill', '#000')
 
-      const padL = 50, padB = 30, padT = 20, padR = 20
-      const pw = W - padL - padR
-      const ph = H - padB - padT
-
-      // f range: 0.01 to 0.12, k range: 0.04 to 0.075
-      const fMin = 0.01, fMax = 0.12
-      const kMin = 0.04, kMax = 0.075
-
-      const fx = f => padL + ((f - fMin) / (fMax - fMin)) * pw
-      const ky = k => padT + ph - ((k - kMin) / (kMax - kMin)) * ph
-
-      // Background regions (approximate)
-      const regions = [
-        { f1:0.01,f2:0.05, k1:0.044,k2:0.060, label:'mitosis', gray:0.92 },
-        { f1:0.03,f2:0.07, k1:0.056,k2:0.068, label:'spots/coral', gray:0.80 },
-        { f1:0.055,f2:0.09,k1:0.059,k2:0.065, label:'stripes', gray:0.70 },
-        { f1:0.07,f2:0.11, k1:0.054,k2:0.062, label:'worms/bubbles', gray:0.85 },
-      ]
-      regions.forEach(r => {
-        const x1 = fx(r.f1), x2 = fx(r.f2)
-        const y1 = ky(r.k2), y2 = ky(r.k1)
-        const g = Math.round(r.gray * 255)
-        ctx.fillStyle = `rgb(${g},${g},${g})`
-        ctx.fillRect(x1, y1, x2-x1, y2-y1)
-        ctx.fillStyle = '#666'
-        ctx.font = '8pt monospace'
-        ctx.fillText(r.label, x1+2, y1+11)
-      })
-
-      // Axes
-      ctx.strokeStyle = '#000'
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(padL, padT); ctx.lineTo(padL, padT+ph)
-      ctx.lineTo(padL+pw, padT+ph)
-      ctx.stroke()
-
-      // Axis labels
-      ctx.fillStyle = '#000'
-      ctx.font = '9pt SF Mono, monospace'
-      ctx.fillText('f (feed rate) →', padL + pw/2 - 30, H - 4)
-      ctx.save(); ctx.translate(12, padT + ph/2 + 20)
-      ctx.rotate(-Math.PI/2); ctx.fillText('k (kill rate) →', 0, 0)
-      ctx.restore()
-
-      // Tick marks
-      ctx.font = '7pt monospace'
-      ctx.fillStyle = '#555'
-      for (let f = 0.02; f <= 0.11; f += 0.02) {
-        const x = fx(f)
-        ctx.beginPath()
-        ctx.moveTo(x, padT+ph); ctx.lineTo(x, padT+ph+4)
-        ctx.stroke()
-        ctx.fillText(f.toFixed(2), x-8, padT+ph+12)
-      }
-      for (let k = 0.045; k <= 0.07; k += 0.01) {
-        const y = ky(k)
-        ctx.beginPath()
-        ctx.moveTo(padL, y); ctx.lineTo(padL-4, y)
-        ctx.stroke()
-        ctx.fillText(k.toFixed(3), 0, y+3)
-      }
-
-      // Plot preset points
-      presets.forEach(p => {
-        const x = fx(p.f)
-        const y = ky(p.k)
-        ctx.fillStyle = '#000'
-        ctx.beginPath()
-        ctx.arc(x, y, 4, 0, Math.PI*2)
-        ctx.fill()
-        ctx.fillStyle = '#000'
-        ctx.font = '8pt monospace'
-        ctx.fillText(p.label, x+6, y+3)
-      })
-    }
-
-    requestAnimationFrame(draw)
-    window.addEventListener('resize', draw)
+      g.append('text')
+        .attr('x', x(p.f) + 6)
+        .attr('y', y(p.k) + 3)
+        .style('font-family', 'SF Mono, Menlo, monospace')
+        .style('font-size', '8pt')
+        .attr('fill', '#000')
+        .text(p.label)
+    })
 
     return () => {
-      window.removeEventListener('resize', draw)
-      disconnect()
-      container.innerHTML = ''
+      d3.select(container).select('#d3-sim').remove()
     }
   }
 }

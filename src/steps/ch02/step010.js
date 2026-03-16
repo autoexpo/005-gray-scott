@@ -1,7 +1,7 @@
 /**
  * Step 10: Initializing U and V — seed, fill, boundary.
  */
-import { makeCanvas2D } from '../../utils/canvas2d.js'
+import * as d3 from 'd3'
 
 export default {
   title: '1D Init: Seed Strategies',
@@ -69,8 +69,19 @@ function seedCheckerboard(u, v, N, amp = 0.1) {
 `,
 
   init(container) {
-    const { canvas, disconnect } = makeCanvas2D(container, false)
-    const ctx = canvas.getContext('2d')
+    const S = 512
+    const margin = { top: 20, right: 20, bottom: 20, left: 100 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
     const N = 200
 
     const strategies = [
@@ -92,59 +103,64 @@ function seedCheckerboard(u, v, N, amp = 0.1) {
       }},
     ]
 
-    function draw() {
-      const W = canvas.width, H = canvas.height
-      ctx.clearRect(0,0,W,H)
-      ctx.fillStyle='#fff'
-      ctx.fillRect(0,0,W,H)
+    const rowH = H / strategies.length
+    const x = d3.scaleLinear().domain([0, 1]).range([0, W])
+    const y = d3.scaleLinear().domain([0, 1]).range([rowH - 20, 0])
 
-      const padY = 8, rowH = (H - padY*2) / strategies.length
-      const padX = 80
+    const lineGen = d3.line().x(d => x(d[0])).y(d => y(d[1]))
 
-      strategies.forEach((s, si) => {
-        const { u, v } = s.gen()
-        const y0 = padY + si * rowH
-        const ph = rowH - 20
+    strategies.forEach((s, si) => {
+      const { u, v } = s.gen()
+      const panelG = g.append('g').attr('transform', `translate(0, ${si * rowH})`)
 
-        ctx.fillStyle = '#666'
-        ctx.font = '8pt monospace'
-        ctx.fillText(s.label, 4, y0 + ph/2 + 4)
+      // Panel label
+      panelG.append('text')
+        .attr('x', -90).attr('y', rowH/2 + 4)
+        .style('font-family', 'SF Mono, Menlo, monospace')
+        .style('font-size', '8pt')
+        .attr('fill', '#666')
+        .text(s.label)
 
-        // u
-        ctx.strokeStyle='#000'
-        ctx.lineWidth=1.5
-        ctx.beginPath()
-        for(let i=0;i<N;i++){
-          const x=padX+(i/(N-1))*(W-padX-8)
-          const y=y0+ph-u[i]*ph
-          i?ctx.lineTo(x,y):ctx.moveTo(x,y)
-        }
-        ctx.stroke()
+      // Data
+      const uData = Array.from(u).map((val, i) => [i / (N-1), val])
+      const vData = Array.from(v).map((val, i) => [i / (N-1), val])
 
-        // v
-        ctx.strokeStyle='#aaa'
-        ctx.lineWidth=1
-        ctx.beginPath()
-        for(let i=0;i<N;i++){
-          const x=padX+(i/(N-1))*(W-padX-8)
-          const y=y0+ph-v[i]*ph
-          i?ctx.lineTo(x,y):ctx.moveTo(x,y)
-        }
-        ctx.stroke()
+      // U line (black)
+      panelG.append('path')
+        .datum(uData)
+        .attr('fill', 'none')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 1.5)
+        .attr('d', lineGen)
 
-        ctx.strokeStyle='#ddd'
-        ctx.lineWidth=0.5
-        ctx.beginPath()
-        ctx.moveTo(padX,y0+rowH-4); ctx.lineTo(W-8,y0+rowH-4)
-        ctx.stroke()
-      })
+      // V line (gray)
+      panelG.append('path')
+        .datum(vData)
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+        .attr('stroke-width', 1)
+        .attr('d', lineGen)
 
-      ctx.fillStyle='#000'
-      ctx.font='9pt SF Mono, monospace'
-      ctx.fillText('U (black), V (gray)',W-100,10)
+      // Separator line
+      if (si < strategies.length - 1) {
+        panelG.append('line')
+          .attr('x1', 0).attr('x2', W)
+          .attr('y1', rowH - 4).attr('y2', rowH - 4)
+          .attr('stroke', '#ddd')
+          .attr('stroke-width', 0.5)
+      }
+    })
+
+    // Legend
+    g.append('text')
+      .attr('x', W - 100).attr('y', 10)
+      .style('font-family', 'SF Mono, Menlo, monospace')
+      .style('font-size', '9pt')
+      .attr('fill', '#000')
+      .text('U (black), V (gray)')
+
+    return () => {
+      d3.select(container).select('#d3-sim').remove()
     }
-
-    requestAnimationFrame(draw)
-    return () => { disconnect(); container.innerHTML='' }
   }
 }

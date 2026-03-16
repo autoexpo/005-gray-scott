@@ -1,5 +1,5 @@
 /** Step 14: Visualizing 1D output — bar chart. */
-import { makeCanvas2D } from '../../utils/canvas2d.js'
+import * as d3 from 'd3'
 export default {
   title: '1D Visualization: Line Chart',
   chapter: 2,
@@ -22,8 +22,40 @@ Interesting patterns (spots, stripes) require 2D. In 1D we see traveling waves a
 }
 </code></pre></div>`,
   init(container) {
-    const { canvas, disconnect } = makeCanvas2D(container, false)
-    const ctx = canvas.getContext('2d')
+    const S = 512
+    const margin = { top: 20, right: 20, bottom: 60, left: 50 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    const x = d3.scaleLinear().domain([0, 1]).range([0, W])
+    const y = d3.scaleLinear().domain([0, 1]).range([H, 0])
+
+    g.append('g').attr('transform', `translate(0,${H})`).call(d3.axisBottom(x).ticks(5))
+    g.append('g').call(d3.axisLeft(y).ticks(5))
+
+    // Style axes
+    g.selectAll('.domain, .tick line').attr('stroke', '#000')
+    g.selectAll('.tick text').style('font-family', 'SF Mono, Menlo, monospace').style('font-size', '9pt').attr('fill', '#666')
+
+    // Create path elements for U and V lines
+    const uPath = g.append('path').attr('fill', 'none').attr('stroke', '#000').attr('stroke-width', 1.5)
+    const vPath = g.append('path').attr('fill', 'none').attr('stroke', '#888').attr('stroke-width', 1.5)
+
+    // Time and parameter label
+    const infoLabel = g.append('text')
+      .attr('x', 0).attr('y', H + 50)
+      .style('font-family', 'SF Mono, Menlo, monospace')
+      .style('font-size', '9pt')
+      .attr('fill', '#666')
+
     const N = 200
     let u = new Float32Array(N).fill(1), v = new Float32Array(N).fill(0)
     let u2 = new Float32Array(N), v2 = new Float32Array(N)
@@ -31,6 +63,7 @@ Interesting patterns (spots, stripes) require 2D. In 1D we see traveling waves a
     for (let i=m-6;i<=m+6;i++){u[i]=0;v[i]=1}
     const p = {f:0.055,k:0.062,Du:0.2097,Dv:0.105,dt:1.0}
     let t=0, animId
+
     function step() {
       for(let i=0;i<N;i++){
         const ul=u[(i-1+N)%N],ur=u[(i+1)%N],vl=v[(i-1+N)%N],vr=v[(i+1)%N]
@@ -40,26 +73,27 @@ Interesting patterns (spots, stripes) require 2D. In 1D we see traveling waves a
       }
       ;[u,u2]=[u2,u];[v,v2]=[v2,v];t++
     }
-    function draw() {
-      const W=canvas.width,H=canvas.height
-      ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H)
-      const pad=24,ph=H-pad*2-20
-      const drawLine=(arr,col)=>{
-        ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.beginPath()
-        for(let i=0;i<N;i++){
-          const x=pad+(i/(N-1))*(W-pad*2),y=pad+ph-arr[i]*ph
-          i?ctx.lineTo(x,y):ctx.moveTo(x,y)
-        }
-        ctx.stroke()
-      }
-      drawLine(u,'#000');drawLine(v,'#888')
-      ctx.strokeStyle='#ddd';ctx.lineWidth=0.5;ctx.beginPath()
-      ctx.moveTo(pad,pad+ph);ctx.lineTo(W-pad,pad+ph);ctx.stroke()
-      ctx.fillStyle='#666';ctx.font='9pt SF Mono,monospace'
-      ctx.fillText(`t=${t}  U (black)  V (gray)  f=${p.f}  k=${p.k}`,pad,H-6)
+
+    function render() {
+      const uData = Array.from(u).map((val, i) => [i / (N-1), val])
+      const vData = Array.from(v).map((val, i) => [i / (N-1), val])
+
+      uPath.attr('d', d3.line().x(d => x(d[0])).y(d => y(d[1]))(uData))
+      vPath.attr('d', d3.line().x(d => x(d[0])).y(d => y(d[1]))(vData))
+
+      infoLabel.text(`t=${t}  U (black)  V (gray)  f=${p.f}  k=${p.k}`)
     }
-    function animate(){animId=requestAnimationFrame(animate);for(let i=0;i<6;i++)step();draw()}
+
+    function animate(){
+      animId=requestAnimationFrame(animate)
+      for(let i=0;i<6;i++)step()
+      render()
+    }
     animate()
-    return ()=>{cancelAnimationFrame(animId);disconnect();container.innerHTML=''}
+
+    return ()=>{
+      cancelAnimationFrame(animId)
+      d3.select(container).select('#d3-sim').remove()
+    }
   }
 }

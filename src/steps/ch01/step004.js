@@ -2,7 +2,7 @@
  * Step 4: The Laplacian operator — spatial second derivative, 5-point stencil.
  * Interactive: hover a cell and see its Laplacian highlighted.
  */
-import { makeCanvas2D } from '../../utils/canvas2d.js'
+import * as d3 from 'd3'
 
 export default {
   title: 'The Laplacian Operator',
@@ -104,8 +104,18 @@ float lapU =
 `,
 
   init(container) {
-    const { canvas, disconnect } = makeCanvas2D(container, false)
-    const ctx = canvas.getContext('2d')
+    const S = 512
+    const margin = { top: 20, right: 20, bottom: 60, left: 20 }
+    const W = S - margin.left - margin.right
+    const H = S - margin.top - margin.bottom
+
+    const svg = d3.select(container).append('svg')
+      .attr('id', 'd3-sim')
+      .attr('width', S).attr('height', S)
+      .style('display', 'block').style('margin', '20px auto 0')
+
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
 
     // Small demo grid
     const GW = 9, GH = 9
@@ -119,27 +129,34 @@ float lapU =
     }
 
     let hoverR = 4, hoverC = 4
+    const cellW = W / GW
+    const cellH = H / GH
+
+    // Info label
+    const infoLabel = g.append('text')
+      .attr('x', 0).attr('y', H + 50)
+      .style('font-family', 'SF Mono, Menlo, monospace')
+      .style('font-size', '9pt')
+      .attr('fill', '#000')
 
     function draw() {
-      const W = canvas.width, H = canvas.height
-      ctx.clearRect(0, 0, W, H)
-      ctx.fillStyle = '#fff'
-      ctx.fillRect(0, 0, W, H)
-
-      const pad = 20
-      const cellW = (W - pad*2) / GW
-      const cellH = (H - pad*2 - 40) / GH
+      // Clear existing cells
+      g.selectAll('rect').remove()
+      g.selectAll('.cell-text').remove()
 
       // Draw grid cells
       for (let r = 0; r < GH; r++) {
         for (let c = 0; c < GW; c++) {
           const val = grid[r * GW + c]
           const gray = Math.round((1 - val) * 255)
-          const x = pad + c * cellW
-          const y = pad + r * cellH
+          const x = c * cellW
+          const y = r * cellH
 
-          ctx.fillStyle = `rgb(${gray},${gray},${gray})`
-          ctx.fillRect(x, y, cellW - 1, cellH - 1)
+          // Cell background
+          g.append('rect')
+            .attr('x', x).attr('y', y)
+            .attr('width', cellW - 1).attr('height', cellH - 1)
+            .attr('fill', `rgb(${gray},${gray},${gray})`)
 
           // Highlight stencil
           const dr = r - hoverR, dc = c - hoverC
@@ -147,19 +164,35 @@ float lapU =
           const isCardinal = (Math.abs(dr) + Math.abs(dc) === 1)
 
           if (isCenter) {
-            ctx.strokeStyle = '#000'
-            ctx.lineWidth = 2
-            ctx.strokeRect(x, y, cellW - 1, cellH - 1)
-            ctx.fillStyle = '#000'
-            ctx.font = '8pt monospace'
-            ctx.fillText('−4', x + 2, y + cellH - 4)
+            g.append('rect')
+              .attr('x', x).attr('y', y)
+              .attr('width', cellW - 1).attr('height', cellH - 1)
+              .attr('fill', 'none')
+              .attr('stroke', '#000')
+              .attr('stroke-width', 2)
+
+            g.append('text')
+              .attr('class', 'cell-text')
+              .attr('x', x + 2).attr('y', y + cellH - 4)
+              .style('font-family', 'SF Mono, Menlo, monospace')
+              .style('font-size', '8pt')
+              .attr('fill', '#000')
+              .text('−4')
           } else if (isCardinal) {
-            ctx.strokeStyle = '#000'
-            ctx.lineWidth = 1.5
-            ctx.strokeRect(x, y, cellW - 1, cellH - 1)
-            ctx.fillStyle = '#000'
-            ctx.font = '8pt monospace'
-            ctx.fillText('+1', x + 2, y + cellH - 4)
+            g.append('rect')
+              .attr('x', x).attr('y', y)
+              .attr('width', cellW - 1).attr('height', cellH - 1)
+              .attr('fill', 'none')
+              .attr('stroke', '#000')
+              .attr('stroke-width', 1.5)
+
+            g.append('text')
+              .attr('class', 'cell-text')
+              .attr('x', x + 2).attr('y', y + cellH - 4)
+              .style('font-family', 'SF Mono, Menlo, monospace')
+              .style('font-size', '8pt')
+              .attr('fill', '#000')
+              .text('+1')
           }
         }
       }
@@ -174,29 +207,24 @@ float lapU =
                 + grid[idx(hoverR,hoverC-1)] + grid[idx(hoverR,hoverC+1)]
                 - 4 * grid[ci]
 
-      ctx.fillStyle = '#000'
-      ctx.font = '9pt SF Mono, monospace'
-      ctx.fillText(`cell (${hoverR},${hoverC}):  u=${grid[ci].toFixed(3)}  ∇²u=${lap.toFixed(3)}`, pad, H - 10)
+      infoLabel.text(`cell (${hoverR},${hoverC}):  u=${grid[ci].toFixed(3)}  ∇²u=${lap.toFixed(3)}`)
     }
 
-    canvas.addEventListener('mousemove', e => {
-      const rect = canvas.getBoundingClientRect()
-      const pad = 20
-      const cellW = (canvas.width - pad*2) / GW
-      const cellH = (canvas.height - pad*2 - 40) / GH
-      const c = Math.floor((e.clientX - rect.left - pad) / cellW)
-      const r = Math.floor((e.clientY - rect.top - pad) / cellH)
+    // Add mousemove handler
+    svg.on('mousemove', function(event) {
+      const [mouseX, mouseY] = d3.pointer(event, g.node())
+      const c = Math.floor(mouseX / cellW)
+      const r = Math.floor(mouseY / cellH)
       if (r >= 0 && r < GH && c >= 0 && c < GW) {
         hoverR = r; hoverC = c
         draw()
       }
     })
 
-    requestAnimationFrame(draw)
+    draw()
 
     return () => {
-      disconnect()
-      container.innerHTML = ''
+      d3.select(container).select('#d3-sim').remove()
     }
   }
 }
