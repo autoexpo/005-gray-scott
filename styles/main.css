@@ -233,7 +233,7 @@ code {
   height: 100%;
 }
 
-#viz-container canvas {
+#viz-container canvas:not(.fixed-canvas) {
   display: block;
   width: 100% !important;
   height: 100% !important;

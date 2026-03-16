@@ -2,7 +2,6 @@
  * Step 3: Diffusion alone — Fick's Law and the heat equation.
  * Animated 1D heat equation demo.
  */
-import { makeCanvas2D } from '../../utils/canvas2d.js'
 
 export default {
   title: "Diffusion: Fick's Law",
@@ -101,7 +100,13 @@ function animate() {
 `,
 
   init(container) {
-    const { canvas, resize, disconnect } = makeCanvas2D(container, false)
+    const S = 300 // square canvas size
+    const canvas = document.createElement('canvas')
+    canvas.width = S
+    canvas.height = S
+    canvas.className = 'fixed-canvas'
+    canvas.style.cssText = 'display:block; width:300px; height:300px; margin:auto; margin-top:20px'
+    container.appendChild(canvas)
     const ctx = canvas.getContext('2d')
 
     const N = 200
@@ -124,19 +129,18 @@ function animate() {
     }
 
     function draw() {
-      const W = canvas.width, H = canvas.height
-      ctx.clearRect(0, 0, W, H)
+      ctx.clearRect(0, 0, S, S)
       ctx.fillStyle = '#fff'
-      ctx.fillRect(0, 0, W, H)
+      ctx.fillRect(0, 0, S, S)
 
       // Plot concentration
-      const pad = 24, plotH = H - pad * 2
+      const pad = 24, plotH = S - pad * 2
       ctx.strokeStyle = '#000'
       ctx.lineWidth = 1.5
       ctx.beginPath()
       for (let i = 0; i < N; i++) {
-        const x = pad + (i / (N-1)) * (W - pad*2)
-        const y = (H - pad) - c[i] * plotH
+        const x = pad + (i / (N-1)) * (S - pad*2)
+        const y = (S - pad) - c[i] * plotH
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
       }
       ctx.stroke()
@@ -145,15 +149,15 @@ function animate() {
       ctx.strokeStyle = '#000'
       ctx.lineWidth = 0.5
       ctx.beginPath()
-      ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad)
-      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad)
+      ctx.moveTo(pad, S - pad); ctx.lineTo(S - pad, S - pad)
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, S - pad)
       ctx.stroke()
 
       // Label
       ctx.fillStyle = '#666'
       ctx.font = '9pt SF Mono, monospace'
       ctx.fillText(`D·∇²c  t=${t.toFixed(1)}`, pad + 4, pad + 12)
-      ctx.fillText('x', W - pad, H - pad - 4)
+      ctx.fillText('x', S - pad, S - pad - 4)
       ctx.fillText('c', pad + 4, pad)
     }
 
@@ -170,7 +174,6 @@ function animate() {
 
     return () => {
       cancelAnimationFrame(animId)
-      disconnect()
       container.innerHTML = ''
     }
   }
