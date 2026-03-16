@@ -100,12 +100,12 @@ function animate() {
 `,
 
   init(container) {
-    const S = 300 // square canvas size
+    const S = 512 // square canvas size
     const canvas = document.createElement('canvas')
     canvas.width = S
     canvas.height = S
-    canvas.className = 'fixed-canvas'
-    canvas.style.cssText = 'display:block; width:300px; height:300px; margin:auto; margin-top:20px'
+    canvas.id = 'sim-canvas'
+    canvas.style.cssText = 'display:block; width:512px; height:512px; margin:auto; margin-top:20px'
     container.appendChild(canvas)
     const ctx = canvas.getContext('2d')
 

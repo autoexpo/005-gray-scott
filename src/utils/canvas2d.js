@@ -2,17 +2,17 @@
  * Canvas2D helpers for CPU simulation visualization.
  */
 
-const FIXED_SIZE = 300 // canonical square canvas size for all visualizations
+const FIXED_SIZE = 512 // canonical square canvas size for all visualizations
 
 /**
- * Create a fixed 300×300 square 2D canvas centered in the container.
- * The canvas class="fixed-canvas" exempts it from the full-bleed CSS rule.
+ * Create a fixed 512×512 square 2D canvas centered in the container.
+ * The canvas gets id="sim-canvas" so CSS can target it directly by ID.
  */
 export function makeCanvas2D(container, pixelated = true, onResize = null) {
   const canvas = document.createElement('canvas')
   canvas.width = FIXED_SIZE
   canvas.height = FIXED_SIZE
-  canvas.className = 'fixed-canvas'
+  canvas.id = 'sim-canvas'
   canvas.style.cssText = `display:block; width:${FIXED_SIZE}px; height:${FIXED_SIZE}px; margin:auto; margin-top:20px`
   if (pixelated) {
     canvas.style.imageRendering = 'pixelated'

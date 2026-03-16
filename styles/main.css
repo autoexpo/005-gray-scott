@@ -233,7 +233,8 @@ code {
   height: 100%;
 }
 
-#viz-container canvas:not(.fixed-canvas) {
+/* Full-bleed only for Three.js renderer canvases inside the #sim-canvas wrapper */
+#sim-canvas canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;

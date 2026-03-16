@@ -37,9 +37,10 @@ export function startGPULoop(container, options = {}) {
     onFrame = null,
   } = options
 
-  // Centered 300×300 square wrapper — keeps 1:1 aspect, consistent with canvas2d steps
-  const S = 300
+  // Centered 512×512 square wrapper — keeps 1:1 aspect, consistent with canvas2d steps
+  const S = 512
   const wrap = document.createElement('div')
+  wrap.id = 'sim-canvas'
   wrap.style.cssText = `width:${S}px; height:${S}px; margin:auto; margin-top:20px; position:relative; flex-shrink:0`
   container.appendChild(wrap)
 
