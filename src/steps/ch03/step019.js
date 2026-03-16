@@ -9,7 +9,7 @@ export default {
 
   math: `<div class="math-section"><h3>2D Grid Layout</h3>
 <p>A 2D W×H grid is stored as a flat 1D array of length W×H.</p>
-<div class="math-block">$$\text{index}(r, c) = r \times W + c$$</div>
+<div class="math-block">$$\\text{index}(r, c) = r \\times W + c$$</div>
 <p>This row-major layout is cache-friendly for row-by-row access patterns.</p></div>`,
 
   code: `<div class="code-section"><h3>Step 19 Code</h3>

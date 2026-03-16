@@ -9,7 +9,7 @@ export default {
   chapter: 7,
 
   math: `<div class="math-section"><h3>Mass Conservation</h3>
-<p>The total concentration ∑(U+V) should decrease monotonically:
+<p>The total concentration $\\sum(U+V)$ should decrease monotonically:
 feed adds U, kill removes V, but net flux is slightly negative.
 NaN or sudden jumps indicate numerical instability.</p></div>`,
 

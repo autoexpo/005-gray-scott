@@ -10,7 +10,7 @@ export default {
 
   math: `<div class="math-section"><h3>Two-Layer Coupling</h3>
 <p>Run two independent Gray-Scott systems and weakly couple them:
-u₁ is influenced by u₂ and vice versa. The coupled system can produce
+$u_1$ is influenced by $u_2$ and vice versa. The coupled system can produce
 patterns impossible in a single layer.</p></div>`,
 
   code: `<div class="code-section"><h3>Step 90 Code</h3>

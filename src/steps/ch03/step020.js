@@ -8,7 +8,7 @@ export default {
   chapter: 3,
 
   math: `<div class="math-section"><h3>2D Index with Periodic Wrap</h3>
-<div class="math-block">$$\text{idx}(r,c) = \bigl((r \bmod H) + H\bigr)\bmod H \times W + \bigl((c \bmod W) + W\bigr)\bmod W$$</div>
+<div class="math-block">$$\\text{idx}(r,c) = \\bigl((r \\bmod H) + H\\bigr)\\bmod H \\times W + \\bigl((c \\bmod W) + W\\bigr)\\bmod W$$</div>
 <p>The double-modulo pattern handles negative indices correctly in JavaScript.</p></div>`,
 
   code: `<div class="code-section"><h3>Step 20 Code</h3>

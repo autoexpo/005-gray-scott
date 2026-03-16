@@ -11,7 +11,7 @@ export default {
 <div class="math-block">$$k_1 = F(u), \quad k_2 = F\!\left(u + \frac{\Delta t}{2}k_1\right)$$</div>
 <div class="math-block">$$k_3 = F\!\left(u + \frac{\Delta t}{2}k_2\right), \quad k_4 = F(u + \Delta t \cdot k_3)$$</div>
 <div class="math-block">$$u^{t+1} = u^t + \frac{\Delta t}{6}(k_1 + 2k_2 + 2k_3 + k_4)$$</div>
-<p>Fourth-order accuracy: error O(dt⁴). Allows larger dt than Euler.</p></div>`,
+<p>Fourth-order accuracy: error $O(dt^4)$. Allows larger dt than Euler.</p></div>`,
 
   code: `<div class="code-section"><h3>Step 73 Code</h3>
 <pre><code class="language-js">// See the source files for this step's implementation.

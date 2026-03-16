@@ -8,7 +8,7 @@ export default {
   chapter: 3,
 
   math: `<div class="math-section"><h3>2D 5-Point Stencil</h3>
-<div class="math-block">$$\nabla^2 u_{i,j} = u_{i-1,j} + u_{i+1,j} + u_{i,j-1} + u_{i,j+1} - 4u_{i,j}$$</div>
+<div class="math-block">$$\\nabla^2 u_{i,j} = u_{i-1,j} + u_{i+1,j} + u_{i,j-1} + u_{i,j+1} - 4u_{i,j}$$</div>
 <pre style="border:none;background:none;text-align:center;line-height:1.8">
        +1
   +1   −4   +1

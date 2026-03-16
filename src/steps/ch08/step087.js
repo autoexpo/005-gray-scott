@@ -8,9 +8,9 @@ export default {
   chapter: 8,
 
   math: `<div class="math-section"><h3>Turing Instability: Linear Analysis</h3>
-<p>Linearize around the homogeneous steady state (u*, v*). Write u = u* + ũe^{iqx+σt}.
-The growth rate σ(q) determines which wavenumbers q are unstable.
-Instability occurs when Re(σ) > 0 for some q ≠ 0.</p></div>`,
+<p>Linearize around the homogeneous steady state $(u^*, v^*)$. Write $u = u^* + \\tilde{u}\\,e^{iqx+\\sigma t}$.
+The growth rate $\\sigma(q)$ determines which wavenumbers $q$ are unstable.
+Instability occurs when $\\text{Re}(\\sigma) > 0$ for some $q \\neq 0$.</p></div>`,
 
   code: `<div class="code-section"><h3>Step 87 Code</h3>
 <pre><code class="language-js">// See the source files for this step's implementation.

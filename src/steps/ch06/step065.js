@@ -10,7 +10,7 @@ export default {
 
   math: `<div class="math-section"><h3>Sobel Edge Detection</h3>
 <p>The Sobel operator computes the gradient magnitude of u, highlighting boundaries between pattern and background.
-$$|\nabla u| = \sqrt{G_x^2 + G_y^2}$$</p></div>`,
+$$|\\nabla u| = \\sqrt{G_x^2 + G_y^2}$$</p></div>`,
 
   code: `<div class="code-section"><h3>Step 65 Code</h3>
 <pre><code class="language-js">// See the source files for this step's implementation.

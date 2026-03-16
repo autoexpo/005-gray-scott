@@ -8,9 +8,9 @@ export default {
   chapter: 8,
 
   math: `<div class="math-section"><h3>Dispersion Relation</h3>
-<p>The dispersion relation σ(q²) is a polynomial whose roots give the growth rates.
-The wavenumber q* that grows fastest determines the pattern wavelength:
-$$\lambda^* = \frac{2\pi}{q^*}$$</p></div>`,
+<p>The dispersion relation $\\sigma(q^2)$ is a polynomial whose roots give the growth rates.
+The wavenumber $q^*$ that grows fastest determines the pattern wavelength:</p>
+<div class="math-block">$$\\lambda^* = \\frac{2\\pi}{q^*}$$</div></div>`,
 
   code: `<div class="code-section"><h3>Step 88 Code</h3>
 <pre><code class="language-js">// See the source files for this step's implementation.

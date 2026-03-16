@@ -8,7 +8,7 @@ export default {
   chapter: 3,
 
   math: `<div class="math-section"><h3>9-Point Isotropic Laplacian</h3>
-<div class="math-block">$$\nabla^2 u \approx \frac{1}{6}\sum_{\text{cardinal}} + \frac{1}{12}\sum_{\text{diagonal}} - \frac{5}{6}u_{ij}$$</div>
+<div class="math-block">$$\\nabla^2 u \\approx \\frac{1}{6}\\sum_{\\text{cardinal}} + \\frac{1}{12}\\sum_{\\text{diagonal}} - \\frac{5}{6}u_{ij}$$</div>
 <p>Correction weights make the stencil rotationally symmetric to O(h²), reducing directional bias.</p></div>`,
 
   code: `<div class="code-section"><h3>Step 27 Code</h3>
