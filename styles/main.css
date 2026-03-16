@@ -285,12 +285,17 @@ code {
   --slider-input-color: #fff !important;
   --slider-input-text-color: #000 !important;
   --checkbox-color: #000 !important;
+  border: 1px solid #000 !important;
+}
+
+/* Root GUI only — position overlay inside viz container */
+.lil-gui.lil-root {
   position: absolute !important;
   top: 4px !important;
   right: 4px !important;
   max-height: calc(100% - 8px) !important;
   overflow-y: auto !important;
-  border: 1px solid #000 !important;
+  z-index: 10;
 }
 
 /* ── Misc utilities ── */

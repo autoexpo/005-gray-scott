@@ -14,10 +14,6 @@ export const GuiManager = {
   create(container) {
     this.destroy()
     _gui = new GUI({ container, title: 'Parameters', width: 220 })
-    // Override default auto-place so it attaches to container
-    _gui.domElement.style.position = 'absolute'
-    _gui.domElement.style.top = '4px'
-    _gui.domElement.style.right = '4px'
     container.style.position = 'relative'
     return _gui
   },
