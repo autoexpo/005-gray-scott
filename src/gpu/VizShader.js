@@ -20,7 +20,7 @@ const fragGLSL = /* glsl */`
 
   uniform sampler2D uState;
   uniform vec2 uTexelSize;
-  uniform int uMode;        // 0=gray, 1=invert, 2=dual, 3=contour, 4=edge
+  uniform int uMode;        // 0=gray, 1=invert, 2=dual, 3=contour, 4=edge, 5=bw
 
   varying vec2 vUv;
 
@@ -68,6 +68,9 @@ const fragGLSL = /* glsl */`
     } else if (uMode == 4) {
       // Sobel edge
       c = sobel();
+    } else if (uMode == 5) {
+      // hard B&W threshold: white background, pure black pattern
+      c = step(0.5, u);
     } else {
       c = u;
     }
@@ -101,7 +104,7 @@ export class VizShader {
   }
 
   setMode(mode) {
-    const modes = { grayscale: 0, invert: 1, dual: 2, contour: 3, edge: 4 }
+    const modes = { grayscale: 0, invert: 1, dual: 2, contour: 3, edge: 4, bw: 5 }
     this.material.uniforms.uMode.value = modes[mode] ?? 0
   }
 

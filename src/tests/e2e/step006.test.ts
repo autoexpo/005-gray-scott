@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { readPixels, darkPixelRatio, pixelVariance } from './utils/pixels.js'
 
 test.describe('Step 6: Full Gray-Scott GPU Simulation', () => {
-  test('starts mostly dark (inverted) then develops pattern variance', async ({ page }) => {
+  test('starts mostly white (bw mode) then develops pattern variance', async ({ page }) => {
     const errors: string[] = []
     page.on('console', msg => {
       if (msg.type() === 'error' && !msg.text().includes('computeBoundingSphere')) errors.push(msg.text())
@@ -13,11 +13,11 @@ test.describe('Step 6: Full Gray-Scott GPU Simulation', () => {
     await page.waitForSelector('#three-canvas', { timeout: 15_000 })
     await page.waitForTimeout(1_000)
 
-    // Visualization uses 'invert' mode: u=1 → black, u=0 → white
-    // So initial state (u≈1 everywhere) should be mostly dark
+    // Visualization uses 'bw' mode: step(0.5, u) — u=1 → white, u=0 → black
+    // Initial state (u≈1 everywhere, small V seed) should be mostly bright
     const pixels0 = await readPixels(page, '#three-canvas')
-    const dark0 = darkPixelRatio(pixels0, 50)
-    expect(dark0).toBeGreaterThan(0.5)
+    const dark0 = darkPixelRatio(pixels0, 200)
+    expect(dark0).toBeLessThan(0.3)
 
     // After 10s, Gray-Scott forms spots — variance should increase significantly
     await page.waitForTimeout(10_000)

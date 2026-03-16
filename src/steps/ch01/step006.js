@@ -101,7 +101,7 @@ pingpong.swap()
       params: PRESETS.spots,
       size: 256,
       stepsPerFrame: 8,
-      vizMode: 'invert',
+      vizMode: 'bw',
       showGui: true,
     })
   }

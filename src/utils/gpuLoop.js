@@ -28,7 +28,7 @@ export function startGPULoop(container, options = {}) {
     params = {},
     size = 256,
     stencil = '5pt',
-    vizMode = 'invert',
+    vizMode = 'bw',
     stepsPerFrame = 8,
     showGui = true,
     mouse = true,
@@ -82,7 +82,7 @@ export function startGPULoop(container, options = {}) {
 
     const vizFolder = gui.addFolder('Visualization')
     const vizCtrl = { mode: currentVizMode }
-    vizFolder.add(vizCtrl, 'mode', ['grayscale','invert','dual','contour','edge'])
+    vizFolder.add(vizCtrl, 'mode', ['bw','grayscale','invert','dual','contour','edge'])
       .name('mode').onChange(v => { currentVizMode = v })
 
     const ctrlFolder = gui.addFolder('Control')
