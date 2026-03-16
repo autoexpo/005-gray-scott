@@ -45,7 +45,7 @@ export function startGPULoop(container, options = {}) {
   container.appendChild(wrap)
 
   // Three.js renderer sized to the square
-  const renderer = new THREE.WebGLRenderer({ antialias: false })
+  const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true })
   renderer.setPixelRatio(1) // pixel-perfect for sim
   renderer.setSize(S, S)
   wrap.appendChild(renderer.domElement)

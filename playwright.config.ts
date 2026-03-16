@@ -9,11 +9,11 @@ export default defineConfig({
     launchOptions: {
       args: [
         '--disable-dev-shm-usage',
-        '--disable-gpu',
         '--no-sandbox',
         '--disable-setuid-sandbox',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor'
+        '--use-gl=swiftshader',
+        '--enable-webgl',
+        '--ignore-gpu-blocklist',
       ]
     }
   },
