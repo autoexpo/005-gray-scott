@@ -176,7 +176,7 @@ for (let t = 0; t < 2000; t++) {
       })
     }
 
-    draw()
+    requestAnimationFrame(draw)
     return () => {
       cancelAnimationFrame(animId)
       disconnect()

@@ -192,7 +192,7 @@ float lapU =
       }
     })
 
-    draw()
+    requestAnimationFrame(draw)
 
     return () => {
       disconnect()

@@ -5,7 +5,7 @@
 /**
  * Create a 2D canvas sized to its container.
  */
-export function makeCanvas2D(container, pixelated = true) {
+export function makeCanvas2D(container, pixelated = true, onResize = null) {
   const canvas = document.createElement('canvas')
   canvas.style.width = '100%'
   canvas.style.height = '100%'
@@ -22,6 +22,7 @@ export function makeCanvas2D(container, pixelated = true) {
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w
       canvas.height = h
+      if (onResize) onResize()
     }
   }
   resize()

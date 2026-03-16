@@ -187,7 +187,7 @@ export default {
       })
     }
 
-    draw()
+    requestAnimationFrame(draw)
     window.addEventListener('resize', draw)
 
     return () => {

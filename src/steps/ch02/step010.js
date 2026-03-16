@@ -144,7 +144,7 @@ function seedCheckerboard(u, v, N, amp = 0.1) {
       ctx.fillText('U (black), V (gray)',W-100,10)
     }
 
-    draw()
+    requestAnimationFrame(draw)
     return () => { disconnect(); container.innerHTML='' }
   }
 }

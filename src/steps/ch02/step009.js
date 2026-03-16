@@ -161,7 +161,7 @@ export default {
       ctx.fillText('u=1',W-pad-20,pad+ph-4)
     }
 
-    draw()
+    requestAnimationFrame(draw)
     return () => { disconnect(); container.innerHTML='' }
   }
 }
