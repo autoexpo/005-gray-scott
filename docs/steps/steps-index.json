@@ -1,0 +1,1407 @@
+{
+  "generated": "2026-03-16",
+  "steps": [
+    {
+      "id": 1,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "What is Reaction-Diffusion?",
+      "context": "Introduces the fundamental concept of reaction-diffusion systems where two processes compete to create Turing patterns.",
+      "key_equations": [
+        "\\frac{\\partial c}{\\partial t} = D \\nabla^2 c",
+        "D_v > D_u \\implies \\text{diffusion-driven instability}",
+        "\\frac{\\partial u}{\\partial t} = Du·∇²u - u·v² + f·(1-u)",
+        "\\frac{\\partial v}{\\partial t} = Dv·∇²v + u·v² - (f+k)·v"
+      ],
+      "code_functions": [
+        {"name": "step(u, v, params)", "purpose": "Conceptual pseudocode showing diffusion via Laplacian and Gray-Scott reaction"},
+        {"name": "PARAMS structure", "purpose": "Parameter definitions with f, k, Du, Dv, dt values"}
+      ],
+      "viz": {
+        "type": "ASCII art diagram",
+        "stack": "Plain HTML/CSS, SF Mono font",
+        "shows": "System overview with species, diffusion coefficients, reaction network, and parameter ranges"
+      },
+      "test": {
+        "file": "src/tests/e2e/step001.test.ts",
+        "assertion": "Checks for presence of reaction-diffusion system diagram",
+        "status": "passed",
+        "duration_ms": 361
+      }
+    },
+    {
+      "id": 2,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "The Gray-Scott Equations",
+      "context": "Presents the complete Gray-Scott PDE system with detailed term-by-term explanation.",
+      "key_equations": [
+        "\\frac{\\partial U}{\\partial t} = D_U \\nabla^2 U - UV^2 + f(1 - U)",
+        "\\frac{\\partial V}{\\partial t} = D_V \\nabla^2 V + UV^2 - (f+k)V",
+        "D_U = 0.2097, D_V = 0.105",
+        "f \\in [0.01, 0.12], k \\in [0.04, 0.08]"
+      ],
+      "code_functions": [
+        {"name": "grayScottDerivatives(u, v, lapU, lapV, p)", "purpose": "Direct JavaScript translation of Gray-Scott PDEs"},
+        {"name": "eulerStep(u, v, lapU, lapV, p)", "purpose": "Euler integration with clamping to [0,1]"}
+      ],
+      "viz": {
+        "type": "ASCII art equation display",
+        "stack": "Plain HTML/CSS, SF Mono font",
+        "shows": "Formatted PDE equations with sign conventions and steady state analysis"
+      },
+      "test": {
+        "file": "src/tests/e2e/step002.test.ts",
+        "assertion": "Checks for Gray-Scott equation display with proper term labeling",
+        "status": "passed",
+        "duration_ms": 384
+      }
+    },
+    {
+      "id": 3,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "Diffusion: Fick's Law",
+      "context": "Explains pure diffusion through Fick's second law, demonstrating concentration spreading via the Laplacian operator.",
+      "key_equations": [
+        "\\frac{\\partial c}{\\partial t} = D \\frac{\\partial^2 c}{\\partial x^2}",
+        "\\frac{\\partial c}{\\partial t} = D \\nabla^2 c",
+        "\\nabla^2 c \\approx \\frac{\\bar{c}_{\\text{neighbours}} - c_{\\text{local}}}{h^2/4}",
+        "c(x,t) = \\frac{1}{\\sqrt{4\\pi D t}} \\exp\\left(-\\frac{x^2}{4Dt}\\right)",
+        "\\Delta t \\leq \\frac{h^2}{2D}"
+      ],
+      "code_functions": [
+        {"name": "diffuseStep(c)", "purpose": "1D diffusion using finite difference Laplacian with periodic BC"},
+        {"name": "animate()", "purpose": "Animation loop with 3 sub-steps per frame"}
+      ],
+      "viz": {
+        "type": "D3 animated line chart",
+        "stack": "D3 SVG, requestAnimationFrame, simControls",
+        "shows": "Real-time 1D diffusion of spike spreading as Gaussian"
+      },
+      "test": {
+        "file": "src/tests/e2e/step003.test.ts",
+        "assertion": "Checks for D3 visualization and animated diffusion display",
+        "status": "passed",
+        "duration_ms": 2458
+      }
+    },
+    {
+      "id": 4,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "The Laplacian Operator",
+      "context": "Detailed examination of the 2D Laplacian using 5-point finite difference stencil with interactive exploration.",
+      "key_equations": [
+        "\\nabla^2 u = \\frac{\\partial^2 u}{\\partial x^2} + \\frac{\\partial^2 u}{\\partial y^2}",
+        "\\nabla^2 u_{i,j} \\approx u_{i-1,j} + u_{i+1,j} + u_{i,j-1} + u_{i,j+1} - 4u_{i,j}",
+        "= 4\\left(\\bar{u}_{\\text{cardinal}} - u_{i,j}\\right)"
+      ],
+      "code_functions": [
+        {"name": "lap5(arr, grid, r, c)", "purpose": "5-point Laplacian with periodic boundary conditions"},
+        {"name": "idx(r, c)", "purpose": "Periodic index wrapping for edge handling"}
+      ],
+      "viz": {
+        "type": "D3 interactive grid",
+        "stack": "D3 SVG, mouse hover interaction",
+        "shows": "9×9 grid with Gaussian bump, hover highlights 5-point stencil and shows computed Laplacian"
+      },
+      "test": {
+        "file": "src/tests/e2e/step004.test.ts",
+        "assertion": "Checks for interactive grid and Laplacian computation display",
+        "status": "passed",
+        "duration_ms": 1098
+      }
+    },
+    {
+      "id": 5,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "Reaction: Autocatalysis",
+      "context": "Focuses on chemical reaction component showing autocatalysis where V catalyzes its own production from U.",
+      "key_equations": [
+        "U + 2V \\xrightarrow{k_1} 3V",
+        "V \\xrightarrow{k_2} P \\text{ (inert)}",
+        "r = k_1 \\cdot [U][V]^2 = UV^2",
+        "\\frac{dU}{dt}\\Big|_{\\text{rxn}} = -UV^2",
+        "\\frac{dV}{dt}\\Big|_{\\text{rxn}} = +UV^2"
+      ],
+      "code_functions": [
+        {"name": "reactionOnly(u, v, params)", "purpose": "Pure ODE system without spatial terms"},
+        {"name": "trace trajectory", "purpose": "Phase plane analysis for different (f,k) parameters"}
+      ],
+      "viz": {
+        "type": "D3 phase plane diagram",
+        "stack": "D3 SVG with multiple trajectory paths",
+        "shows": "Phase plane (U,V) showing reaction-only trajectories for different parameter sets"
+      },
+      "test": {
+        "file": "src/tests/e2e/step005.test.ts",
+        "assertion": "Checks for phase plane visualization with trajectory paths",
+        "status": "passed",
+        "duration_ms": 311
+      }
+    },
+    {
+      "id": 6,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "Reaction + Diffusion Combined",
+      "context": "First complete Gray-Scott simulation explaining Turing instability mechanism from differential diffusion rates.",
+      "key_equations": [
+        "\\frac{\\partial U}{\\partial t} = D_U \\nabla^2 U - UV^2 + f(1-U)",
+        "\\frac{\\partial V}{\\partial t} = D_V \\nabla^2 V + UV^2 - (f+k)V"
+      ],
+      "code_functions": [
+        {"name": "startGPULoop", "purpose": "GPU simulation loop with Three.js WebGL renderer"},
+        {"name": "GPUSim.step()", "purpose": "Handles seed shader, Gray-Scott compute shader, and buffer swapping"}
+      ],
+      "viz": {
+        "type": "GPU WebGL simulation",
+        "stack": "Three.js WebGL, ping-pong FBOs, gray-scott shader",
+        "shows": "Real-time 2D Gray-Scott on 256×256 grid showing pattern formation from center seed"
+      },
+      "test": {
+        "file": "src/tests/e2e/step006.test.ts",
+        "assertion": "Checks for WebGL canvas and pattern formation",
+        "status": "passed",
+        "duration_ms": 19162
+      }
+    },
+    {
+      "id": 7,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "Parameters: f, k, Du, Dv",
+      "context": "Comprehensive overview of four key Gray-Scott parameters with interactive controls for real-time exploration.",
+      "key_equations": [
+        "f \\in [0.01, 0.12]",
+        "k \\in [0.04, 0.07]",
+        "D_U = 0.2097 \\approx 2 \\times D_V, D_V = 0.105"
+      ],
+      "code_functions": [
+        {"name": "lil-gui controls", "purpose": "Parameter binding directly to GPU shader uniforms"},
+        {"name": "uniform hot-swap", "purpose": "Real-time parameter updates without shader recompilation"}
+      ],
+      "viz": {
+        "type": "GPU simulation with lil-gui controls",
+        "stack": "Three.js WebGL, lil-gui, uniform hot-swap",
+        "shows": "Interactive Gray-Scott with real-time parameter adjustment"
+      },
+      "test": {
+        "file": "src/tests/e2e/step007.test.ts",
+        "assertion": "Checks for GUI controls and parameter interaction",
+        "status": "passed",
+        "duration_ms": 9872
+      }
+    },
+    {
+      "id": 8,
+      "chapter": 1,
+      "chapter_name": "Foundations",
+      "title": "Phase Space: the (f,k) Map",
+      "context": "Introduces (f,k) parameter phase diagram as primary control surface with Pearson's 1993 pattern classification.",
+      "key_equations": [
+        "f \\in [0.01, 0.12], k \\in [0.04, 0.075]"
+      ],
+      "code_functions": [
+        {"name": "PRESETS definitions", "purpose": "Named presets (spots, stripes, worms, etc.) with (f,k) values"},
+        {"name": "loadPreset(name)", "purpose": "Parameter switching and simulation reset"}
+      ],
+      "viz": {
+        "type": "D3 static phase diagram",
+        "stack": "D3 SVG with colored regions and scatter plot",
+        "shows": "(f,k) parameter space with shaded pattern regions and plotted preset points"
+      },
+      "test": {
+        "file": "src/tests/e2e/step008.test.ts",
+        "assertion": "Checks for phase diagram with preset points and regions",
+        "status": "passed",
+        "duration_ms": 436
+      }
+    },
+    {
+      "id": 9,
+      "chapter": 2,
+      "chapter_name": "1D CPU Implementation",
+      "title": "1D Grid: Typed Arrays",
+      "context": "Introduces discrete 1D spatial grid using Float32Array for efficient CPU-based numerical computation.",
+      "key_equations": [
+        "x_i = i \\cdot h, i = 0, 1, \\ldots, N-1",
+        "\\text{u[0..N-1]}, \\text{v[0..N-1]}",
+        "\\text{u2[0..N-1]}, \\text{v2[0..N-1]}"
+      ],
+      "code_functions": [
+        {"name": "Grid1D constructor", "purpose": "Float32Array buffers with double-buffering for u, v"},
+        {"name": "init(seedHalfWidth)", "purpose": "Initialize U=1, V=0 with center seed region"},
+        {"name": "swap()", "purpose": "Double-buffer swapping"},
+        {"name": "idx(i)", "purpose": "Periodic boundary wrapping"}
+      ],
+      "viz": {
+        "type": "D3 static line chart",
+        "stack": "D3 SVG line generator",
+        "shows": "Initial conditions with U=1 (black) and V=0 with center seed (gray dashed)"
+      },
+      "test": {
+        "file": "src/tests/e2e/step009.test.ts",
+        "assertion": "Checks for 1D grid visualization with U and V traces",
+        "status": "passed",
+        "duration_ms": 821
+      }
+    },
+    {
+      "id": 10,
+      "chapter": 2,
+      "chapter_name": "1D CPU Implementation",
+      "title": "1D Init: Seed Strategies",
+      "context": "Explores different initialization strategies for symmetry breaking showing various approaches to pattern nucleation.",
+      "key_equations": [
+        "U(x,0) = 1 - \\epsilon(x), V(x,0) = \\epsilon(x)"
+      ],
+      "code_functions": [
+        {"name": "seedCenter(u, v, N, halfW)", "purpose": "Center patch seeding with V=1, U=0"},
+        {"name": "seedRandom(u, v, N, density)", "purpose": "Random noise perturbations with 2% density"},
+        {"name": "seedCheckerboard(u, v, N, amp)", "purpose": "Alternating pattern with 10% amplitude"}
+      ],
+      "viz": {
+        "type": "D3 multi-panel comparison",
+        "stack": "D3 SVG with three stacked panels",
+        "shows": "Side-by-side comparison of three initialization strategies showing U (black) and V (gray) profiles"
+      },
+      "test": {
+        "file": "src/tests/e2e/step010.test.ts",
+        "assertion": "Checks for multi-panel seed strategy comparison",
+        "status": "passed",
+        "duration_ms": 865
+      }
+    },
+    {
+      "id": 11,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "1D Finite-Difference Laplacian",
+      "context": "Introduces discrete finite-difference approximation of the Laplacian operator in 1D using the standard second-order central difference formula.",
+      "key_equations": [
+        "∇²u_i = u_{i-1} - 2u_i + u_{i+1} (second derivative, O(h²) error)",
+        "periodic BCs: u_{-1} ≡ u_{N-1}"
+      ],
+      "code_functions": [
+        {"name": "laplacian1D(arr, i, N)", "purpose": "Compute Laplacian at index i"},
+        {"name": "computeLaplacian(arr, out, N)", "purpose": "Batch Laplacian computation across 1D array"}
+      ],
+      "viz": {
+        "type": "Pre-formatted ASCII text panel",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Mathematical formulation and implementation details of 1D finite difference Laplacian operator"
+      },
+      "test": {
+        "file": "src/tests/e2e/step011.test.ts",
+        "assertion": "pre element present and text is truthy",
+        "status": "passed",
+        "duration_ms": 403
+      }
+    },
+    {
+      "id": 12,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "1D Euler Integration Step",
+      "context": "Implements forward Euler time integration for the 1D Gray-Scott system, combining diffusion terms with full reaction kinetics.",
+      "key_equations": [
+        "Forward Euler u(t+Δt) = u(t) + Δt·f(u,v)",
+        "CFL stability r = D·Δt/h² ≤ 0.5",
+        "full GS reaction term",
+        "f=0.055, k=0.062, Du=0.2097, Dv=0.105, dt=1.0"
+      ],
+      "code_functions": [
+        {"name": "eulerStep1D(grid, params)", "purpose": "Time integration step"},
+        {"name": "step()", "purpose": "Advance simulation state"},
+        {"name": "reset()", "purpose": "Reinitialize conditions"},
+        {"name": "animate()", "purpose": "Rendering loop"}
+      ],
+      "viz": {
+        "type": "D3 SVG line chart",
+        "stack": "D3 SVG, interactive controls",
+        "shows": "Real-time 1D Gray-Scott simulation showing U (black) and V (gray) concentration profiles with controls"
+      },
+      "test": {
+        "file": "src/tests/e2e/step012.test.ts",
+        "assertion": "#d3-sim present, path elements > 0, .sim-btn-pause present",
+        "status": "passed",
+        "duration_ms": 960
+      }
+    },
+    {
+      "id": 13,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "1D Animation Loop",
+      "context": "Explains the requestAnimationFrame-based animation loop architecture with sub-stepping for numerical stability.",
+      "key_equations": [
+        "requestAnimationFrame loop",
+        "sub-stepping 8 steps/frame",
+        "~480 sim-units/sec"
+      ],
+      "code_functions": [
+        {"name": "animate()", "purpose": "Animation function with STEPS_PER_FRAME = 8"}
+      ],
+      "viz": {
+        "type": "Pre-formatted ASCII diagram",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Conceptual diagram showing RAF loop structure and timing with sub-stepping"
+      },
+      "test": {
+        "file": "src/tests/e2e/step013.test.ts",
+        "assertion": "pre present, text truthy",
+        "status": "passed",
+        "duration_ms": 330
+      }
+    },
+    {
+      "id": 14,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "1D Visualization: Line Chart",
+      "context": "Demonstrates simultaneous U+V plotting using D3 line charts to visualize traveling waves in 1D Gray-Scott systems.",
+      "key_equations": [
+        "simultaneous U+V plotting",
+        "traveling waves in 1D",
+        "RAF with 6 sub-steps/frame"
+      ],
+      "code_functions": [
+        {"name": "drawLine(ctx, arr, N, W, H, color)", "purpose": "Render concentration profiles"},
+        {"name": "step()", "purpose": "Simulation advancement"},
+        {"name": "render()", "purpose": "Visualization updates"},
+        {"name": "animate()", "purpose": "Main loop"}
+      ],
+      "viz": {
+        "type": "D3 SVG with dual line paths",
+        "stack": "D3 SVG, path generators, interactive controls",
+        "shows": "Real-time dual-species line chart showing U (black) and V (gray) concentration profiles"
+      },
+      "test": {
+        "file": "src/tests/e2e/step014.test.ts",
+        "assertion": "#d3-sim present, paths > 0, pause button present",
+        "status": "passed",
+        "duration_ms": 868
+      }
+    },
+    {
+      "id": 15,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "1D Traveling Waves and Standing Patterns",
+      "context": "Explores the fundamental differences between 1D and 2D pattern dynamics in Gray-Scott systems.",
+      "key_equations": [
+        "1D dynamics produce traveling pulses and standing waves (not spots/stripes)",
+        "(f,k) parameter space"
+      ],
+      "code_functions": [],
+      "viz": {
+        "type": "Pre-formatted text panel",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Theoretical explanation of 1D pattern formation mechanisms and comparison with 2D behavior"
+      },
+      "test": {
+        "file": "src/tests/e2e/step015.test.ts",
+        "assertion": "pre present, text truthy",
+        "status": "passed",
+        "duration_ms": 279
+      }
+    },
+    {
+      "id": 16,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "Effect of Changing f in 1D",
+      "context": "Examines the critical role of the feed parameter f in controlling U replenishment and overall system dynamics.",
+      "key_equations": [
+        "f controls U replenishment — too small → V starves; optimal → stable pulses; too large → uniform coverage"
+      ],
+      "code_functions": [],
+      "viz": {
+        "type": "Pre-formatted text panel",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Detailed explanation of how feed parameter f affects Gray-Scott pattern dynamics and stability"
+      },
+      "test": {
+        "file": "src/tests/e2e/step016.test.ts",
+        "assertion": "pre present, text truthy",
+        "status": "passed",
+        "duration_ms": 335
+      }
+    },
+    {
+      "id": 17,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "Effect of Changing Du and Dv in 1D",
+      "context": "Explores how diffusion coefficient ratios control Turing instability formation.",
+      "key_equations": [
+        "Du/Dv ratio critical for Turing instability",
+        "standard Du=0.2097, Dv=0.105 (ratio≈2)",
+        "ratio <1.5 may prevent patterns"
+      ],
+      "code_functions": [],
+      "viz": {
+        "type": "Pre-formatted text panel",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Analysis of diffusion coefficient ratios and their role in Turing pattern formation"
+      },
+      "test": {
+        "file": "src/tests/e2e/step017.test.ts",
+        "assertion": "pre present, text truthy",
+        "status": "passed",
+        "duration_ms": 372
+      }
+    },
+    {
+      "id": 18,
+      "chapter": 2,
+      "chapter_name": "1D Gray-Scott in JavaScript",
+      "title": "Periodic vs Fixed Boundary Conditions in 1D",
+      "context": "Compares different boundary condition types and their effects on pattern formation in 1D Gray-Scott systems.",
+      "key_equations": [
+        "Periodic (torus, no edge effects)",
+        "Dirichlet (u=1,v=0 at boundary, absorbing)",
+        "Neumann (∂u/∂n=0, reflective)"
+      ],
+      "code_functions": [],
+      "viz": {
+        "type": "Pre-formatted text panel",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Detailed comparison of periodic, Dirichlet, and Neumann boundary conditions"
+      },
+      "test": {
+        "file": "src/tests/e2e/step018.test.ts",
+        "assertion": "pre present, text truthy",
+        "status": "passed",
+        "duration_ms": 276
+      }
+    },
+    {
+      "id": 19,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "Extending to 2D: Row-Major Layout",
+      "context": "Introduces the transition from 1D to 2D spatial discretization using row-major memory layout for optimal CPU cache performance.",
+      "key_equations": [
+        "idx(r,c) = r × W + c (row-major indexing, cache-friendly)"
+      ],
+      "code_functions": [],
+      "viz": {
+        "type": "Pre-formatted text panel",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Explanation of row-major memory layout and its advantages for 2D array access patterns"
+      },
+      "test": {
+        "file": "src/tests/e2e/step019.test.ts",
+        "assertion": "pre present, text truthy",
+        "status": "passed",
+        "duration_ms": 337
+      }
+    },
+    {
+      "id": 20,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "2D Index Arithmetic",
+      "context": "Presents robust 2D index arithmetic with periodic boundary conditions, handling the JavaScript modulo operator's behavior with negative numbers.",
+      "key_equations": [
+        "idx(r,c) = ((r mod H)+H) mod H × W + ((c mod W)+W) mod W — double-modulo for periodic wrap handles negative indices in JavaScript"
+      ],
+      "code_functions": [],
+      "viz": {
+        "type": "Pre-formatted text panel",
+        "stack": "Plain HTML/CSS, <pre> element",
+        "shows": "Mathematical formula for robust 2D index arithmetic with periodic boundary wrapping"
+      },
+      "test": {
+        "file": "src/tests/e2e/step020.test.ts",
+        "assertion": "pre present, text.length > 10",
+        "status": "passed",
+        "duration_ms": 309
+      }
+    },
+    {
+      "id": 21,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "5-Point Laplacian Stencil",
+      "context": "Presents the fundamental 5-point finite difference stencil for 2D Laplacian computation, extending from the 1D second derivative formula.",
+      "key_equations": ["∇²u[r,c] = u[r−1,c] + u[r+1,c] + u[r,c−1] + u[r,c+1] − 4·u[r,c]"],
+      "code_functions": [{"name": "laplacian2D(u, r, c, W, H)", "purpose": "2D Laplacian computation with periodic wrap"}],
+      "viz": {"type": "D3 SVG stencil diagram", "stack": "D3 SVG with cross-shaped layout", "shows": "Cross shape with center labelled −4 and cardinal neighbours +1"},
+      "test": {"file": "src/tests/e2e/step021.test.ts", "assertion": "D3 stencil diagram present with correct weight labels", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 22,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "Gaussian Hump and its Laplacian",
+      "context": "Demonstrates the geometric meaning of the Laplacian operator through visual comparison of a Gaussian function with its computed Laplacian.",
+      "key_equations": ["Laplacian measures local curvature", "Positive where field is concave up (below neighbours)", "Negative where field is concave down (above neighbours)"],
+      "code_functions": [{"name": "computeGaussian()", "purpose": "Generate 2D Gaussian profile"}, {"name": "computeLaplacian()", "purpose": "Compute Laplacian of 2D field"}],
+      "viz": {"type": "Canvas2D side-by-side comparison", "stack": "HTML5 Canvas2D with grayscale rendering", "shows": "Left: Gaussian grayscale; right: Laplacian (signed, scaled)"},
+      "test": {"file": "src/tests/e2e/step022.test.ts", "assertion": "Two canvas elements present showing Gaussian and Laplacian", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 23,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "2D Initial Conditions",
+      "context": "Establishes the standard 2D initial condition pattern used to nucleate Gray-Scott pattern formation in 2D simulations.",
+      "key_equations": ["u=1 everywhere (uniform background)", "v=0 except center seed region (v=1, u=0)", "Minimal symmetry break for pattern nucleation"],
+      "code_functions": [{"name": "init2D(u, v, W, H)", "purpose": "Initialize 2D arrays with center seed"}, {"name": "seedCenter()", "purpose": "Apply center square perturbation"}],
+      "viz": {"type": "D3 grid diagram", "stack": "D3 SVG with cell-based rendering", "shows": "10×10 cells, all light grey, center 2×2 block black"},
+      "test": {"file": "src/tests/e2e/step023.test.ts", "assertion": "D3 grid visualization with center seed pattern", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 24,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "Live 2D CPU Simulation (128×128)",
+      "context": "First complete 2D Gray-Scott simulation running on CPU, demonstrating pattern formation while revealing computational limitations.",
+      "key_equations": ["Full 2D Gray-Scott system with periodic boundary conditions", "CPU performance limit at 128×128 grid size"],
+      "code_functions": [{"name": "step2D()", "purpose": "Complete 2D simulation step"}, {"name": "animate()", "purpose": "Animation loop with controls"}, {"name": "render2D()", "purpose": "Canvas2D rendering"}],
+      "viz": {"type": "Canvas2D 128×128 CPU simulation", "stack": "HTML5 Canvas2D with live rendering and controls", "shows": "Live simulation with pause/replay controls"},
+      "test": {"file": "src/tests/e2e/step024.test.ts", "assertion": "Live simulation canvas with control buttons", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 25,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "ImageData Rendering",
+      "context": "Explains pixel-level Canvas rendering using ImageData, bridging from CPU computation to GPU shader concepts.",
+      "key_equations": ["Direct pixel-by-pixel RGBA computation", "CPU ImageData → GPU fragment shader parallel"],
+      "code_functions": [{"name": "renderImageData()", "purpose": "Pixel-by-pixel RGBA computation"}, {"name": "putImageData()", "purpose": "Direct canvas pixel manipulation"}],
+      "viz": {"type": "Same 128×128 CPU simulation with explicit ImageData rendering", "stack": "HTML5 Canvas2D with inline ImageData manipulation", "shows": "ImageData rendering written explicitly inline"},
+      "test": {"file": "src/tests/e2e/step025.test.ts", "assertion": "Canvas with ImageData rendering implementation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 26,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "First GPU Simulation",
+      "context": "Transition from CPU to GPU computation, introducing WebGL-based Gray-Scott simulation with massive performance improvement.",
+      "key_equations": ["Same Gray-Scott equations running in parallel on GPU", "Hundreds of thousands of cells per frame"],
+      "code_functions": [{"name": "startGPULoop", "purpose": "Initialize GPU simulation"}, {"name": "fragmentShader", "purpose": "GPU parallel computation"}],
+      "viz": {"type": "GPU simulation via startGPULoop", "stack": "WebGL fragment shaders with spots preset and invert mode", "shows": "High-performance GPU-accelerated Gray-Scott simulation"},
+      "test": {"file": "src/tests/e2e/step026.test.ts", "assertion": "GPU simulation canvas with WebGL context", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 27,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "5-Point vs 9-Point Laplacian",
+      "context": "Compares 5-point and 9-point Laplacian stencils, explaining the importance of isotropy in pattern formation.",
+      "key_equations": ["5-point: cardinals +1, center −4", "9-point: cardinals +0.2, diagonals +0.05, center −1.0", "Isotropic weighting: diagonals = cardinals/√2"],
+      "code_functions": [{"name": "laplacian5pt()", "purpose": "5-point stencil computation"}, {"name": "laplacian9pt()", "purpose": "9-point isotropic stencil computation"}],
+      "viz": {"type": "D3 SVG side-by-side comparison", "stack": "D3 SVG with 3×3 weight grid displays", "shows": "Side-by-side 3×3 weight grids showing stencil coefficients"},
+      "test": {"file": "src/tests/e2e/step027.test.ts", "assertion": "D3 visualization showing both stencil weight patterns", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 28,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "GPU with 9-Point Stencil",
+      "context": "Demonstrates GPU simulation using the 9-point isotropic stencil, showing how discretization choices affect pattern quality.",
+      "key_equations": ["Same Gray-Scott equations with 9-point isotropic Laplacian", "Numerical discretization affects physical output"],
+      "code_functions": [{"name": "startGPULoop", "purpose": "GPU simulation with stencil options"}, {"name": "stencil9ptShader", "purpose": "9-point stencil fragment shader"}],
+      "viz": {"type": "GPU simulation via startGPULoop with 9-point stencil", "stack": "WebGL with stencil='9pt', spots preset, invert mode", "shows": "GPU simulation showing improved pattern isotropy"},
+      "test": {"file": "src/tests/e2e/step028.test.ts", "assertion": "GPU simulation running with 9-point stencil configuration", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 29,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "Boundary Conditions in 2D",
+      "context": "Explains different boundary condition types and their physical interpretations in 2D Gray-Scott simulations.",
+      "key_equations": ["Periodic: u[-1,c] ≡ u[H-1,c] (torus topology)", "Dirichlet: u[boundary] = fixed value (absorbing)", "Neumann: ∂u/∂n = 0 (reflective)"],
+      "code_functions": [{"name": "applyPeriodic()", "purpose": "Periodic boundary implementation"}, {"name": "applyDirichlet()", "purpose": "Dirichlet boundary implementation"}, {"name": "applyNeumann()", "purpose": "Neumann boundary implementation"}],
+      "viz": {"type": "D3 SVG three-panel comparison", "stack": "D3 SVG with 6×6 grid representations", "shows": "Three 6×6 grids side-by-side showing periodic, Dirichlet, Neumann"},
+      "test": {"file": "src/tests/e2e/step029.test.ts", "assertion": "Three-panel boundary condition comparison visualization", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 30,
+      "chapter": 3,
+      "chapter_name": "2D Grid and CPU Simulation",
+      "title": "CPU vs GPU Performance",
+      "context": "Quantitative comparison of CPU vs GPU performance for Gray-Scott simulations, demonstrating the necessity of GPU acceleration.",
+      "key_equations": ["CPU: ~2M cell-updates/sec (128×128)", "GPU: ~400M cell-updates/sec (256×256)", "Performance improvement: 200× faster"],
+      "code_functions": [{"name": "benchmarkCPU()", "purpose": "CPU performance measurement"}, {"name": "benchmarkGPU()", "purpose": "GPU performance measurement"}],
+      "viz": {"type": "D3 horizontal bar chart", "stack": "D3 SVG with logarithmic scale", "shows": "CPU vs GPU throughput comparison on log scale"},
+      "test": {"file": "src/tests/e2e/step030.test.ts", "assertion": "D3 bar chart showing performance comparison", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 31,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "WebGL Context Setup",
+      "context": "Establishes WebGL context initialization with proper extension detection, handling the differences between WebGL1 and WebGL2 float texture support requirements.",
+      "key_equations": ["WebGL2: gl.RGBA32F format available natively", "WebGL1: requires OES_texture_float extension for float textures", "Extension detection: gl.getExtension('OES_texture_float') returns null if unsupported"],
+      "code_functions": [{"name": "createWebGLContext(canvas)", "purpose": "WebGL context creation with capability checking"}, {"name": "gl.getExtension()", "purpose": "Float texture extension detection"}],
+      "viz": {"type": "Pre-formatted text with ASCII diagram", "stack": "Plain HTML/CSS, <pre> element with syntax highlighting", "shows": "WebGL context setup flow showing WebGL2/WebGL1 fallback pattern and required extension detection"},
+      "test": {"file": "src/tests/e2e/step031.test.ts", "assertion": "pre element present with WebGL context setup information", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 32,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Framebuffer Objects (FBOs)",
+      "context": "Introduces Framebuffer Objects as the foundation for render-to-texture operations, enabling GPU computation through off-screen rendering.",
+      "key_equations": ["FBO attachment: gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)", "Bind sequence: gl.bindFramebuffer(gl.FRAMEBUFFER, fbo) → render → output goes to attached texture"],
+      "code_functions": [{"name": "createFBO(gl, width, height)", "purpose": "Creates framebuffer and texture pair"}, {"name": "gl.framebufferTexture2D()", "purpose": "Attaches texture as render target"}],
+      "viz": {"type": "Pre-formatted ASCII diagram", "stack": "Plain HTML/CSS, <pre> element", "shows": "FBO data flow showing how ping-pong pattern uses two FBOs alternating as read source and write target"},
+      "test": {"file": "src/tests/e2e/step032.test.ts", "assertion": "pre element present with FBO explanation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 33,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Float Texture Formats",
+      "context": "Explains floating-point texture formats across WebGL versions, addressing precision requirements for accurate PDE simulation.",
+      "key_equations": ["WebGL2: gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, W, H, 0, gl.RGBA, gl.FLOAT, null)", "WebGL1: gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, W, H, 0, gl.RGBA, gl.FLOAT, null) (requires extension)", "Data packing: u → R channel, v → G channel, B and A unused"],
+      "code_functions": [{"name": "selectTextureFormat(gl, isGL2)", "purpose": "Chooses optimal texture format based on WebGL version"}, {"name": "gl.texImage2D()", "purpose": "Creates float texture with proper format"}],
+      "viz": {"type": "Pre-formatted code comparison with syntax highlighting", "stack": "Plain HTML/CSS, <pre> element", "shows": "Side-by-side WebGL2 vs WebGL1 texture creation code, memory layout diagram showing RGBA channel usage"},
+      "test": {"file": "src/tests/e2e/step033.test.ts", "assertion": "pre element present with texture format information", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 34,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Ping-Pong Double Buffering",
+      "context": "Introduces the ping-pong double buffering pattern essential for iterative GPU computation, preventing simultaneous read-write conflicts.",
+      "key_equations": ["Frame N: read texture A → write texture B → swap", "Frame N+1: read texture B → write texture A → swap", "Buffer swap: [read, write] = [write, read]"],
+      "code_functions": [{"name": "PingPong class", "purpose": "Manages two FBO/texture pairs"}, {"name": "swap()", "purpose": "Alternates read/write roles"}, {"name": "step()", "purpose": "Renders with ping-pong swap"}],
+      "viz": {"type": "Pre-formatted ASCII timeline diagram", "stack": "Plain HTML/CSS, <pre> element", "shows": "Frame-by-frame visualization of ping-pong buffer swapping with read/write roles clearly marked"},
+      "test": {"file": "src/tests/e2e/step034.test.ts", "assertion": "pre element present with ping-pong explanation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 35,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Full-Screen Quad Geometry",
+      "context": "Explains how full-screen quad geometry enables GPU compute by ensuring fragment shader execution across the entire output texture.",
+      "key_equations": ["NDC space coverage: vertices at (-1,-1), (+1,-1), (-1,+1), (+1,+1)", "UV mapping: NDC [-1,1] → texture coordinates [0,1]", "Triangle strip: 4 vertices → 2 triangles → complete screen coverage"],
+      "code_functions": [{"name": "createQuadGeometry(gl)", "purpose": "Creates vertex buffer for full-screen quad"}, {"name": "drawQuad(gl)", "purpose": "Renders two triangles covering viewport"}, {"name": "gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)", "purpose": "Triangle strip rendering"}],
+      "viz": {"type": "ASCII art diagram with vertex layout", "stack": "Plain HTML/CSS, <pre> element", "shows": "Full-screen quad structure showing two triangles, vertex positions in NDC coordinates, and UV mapping from screen space to texture space"},
+      "test": {"file": "src/tests/e2e/step035.test.ts", "assertion": "pre element present with quad geometry explanation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 36,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Pass-Through Vertex Shader",
+      "context": "Demonstrates the minimal vertex shader required for GPU compute, emphasizing the role separation between vertex and fragment shader stages.",
+      "key_equations": ["gl_Position = vec4(a_position, 0.0, 1.0) — pass NDC coordinates through unchanged", "v_uv = a_uv — pass UV coordinates to fragment shader as varying", "Vertex stage: 4 invocations per frame vs Fragment stage: width × height invocations"],
+      "code_functions": [{"name": "vertex shader main()", "purpose": "Pass-through vertex transformation"}, {"name": "gl.vertexAttribPointer()", "purpose": "Attribute binding setup"}, {"name": "varying v_uv", "purpose": "UV coordinate interpolation"}],
+      "viz": {"type": "GLSL code with syntax highlighting and pipeline diagram", "stack": "Plain HTML/CSS, <pre> element with color coding", "shows": "Complete vertex shader GLSL source, attribute setup code, and graphics pipeline flow diagram"},
+      "test": {"file": "src/tests/e2e/step036.test.ts", "assertion": "pre element present with vertex shader information", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 37,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Neighbour Sampling in GLSL",
+      "context": "Demonstrates hardware-accelerated neighbour sampling in GLSL fragment shaders using texture offset calculations and automatic boundary wrapping.",
+      "key_equations": ["texelSize = vec2(1.0/width, 1.0/height) — offset between adjacent texels", "North: texture2D(uState, v_uv + vec2(0, +texelSize.y))", "South: texture2D(uState, v_uv + vec2(0, -texelSize.y))", "West: texture2D(uState, v_uv + vec2(-texelSize.x, 0))", "East: texture2D(uState, v_uv + vec2(+texelSize.x, 0))"],
+      "code_functions": [{"name": "texture2D() neighbor sampling", "purpose": "Hardware-accelerated texture reads"}, {"name": "REPEAT wrap mode", "purpose": "Automatic periodic boundary conditions"}, {"name": "texelSize uniform", "purpose": "UV offset calculation"}],
+      "viz": {"type": "GLSL code with 5-point stencil diagram", "stack": "Plain HTML/CSS, <pre> element with ASCII stencil pattern", "shows": "GLSL texture sampling code and visual representation of 5-point stencil pattern showing center and cardinal neighbours"},
+      "test": {"file": "src/tests/e2e/step037.test.ts", "assertion": "pre element present with neighbour sampling explanation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 38,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "5-Point Laplacian in GLSL",
+      "context": "Demonstrates the complete 5-point Laplacian computation in GLSL, highlighting the transition from sequential CPU loops to parallel GPU execution.",
+      "key_equations": ["∇²u = u[N] + u[S] + u[W] + u[E] - 4×u[C] — discrete Laplacian formula", "vec2 lap = N.rg + S.rg + W.rg + E.rg - 4.0*C.rg — vectorized computation for both u and v", "lap.r = ∇²u and lap.g = ∇²v — dual-species computation"],
+      "code_functions": [{"name": "5-point stencil sampling", "purpose": "Texture reads for center and cardinal neighbors"}, {"name": "vec2 arithmetic", "purpose": "Vectorized Laplacian computation"}, {"name": "C.rg channel access", "purpose": "Extract (u,v) from red-green channels"}],
+      "viz": {"type": "GLSL code with vector operation breakdown", "stack": "Plain HTML/CSS, <pre> element with syntax highlighting", "shows": "Complete GLSL Laplacian implementation showing vectorized computation and comparison with CPU version"},
+      "test": {"file": "src/tests/e2e/step038.test.ts", "assertion": "pre element present with Laplacian computation explanation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 39,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Full Gray-Scott Fragment Shader",
+      "context": "Presents the complete Gray-Scott fragment shader combining Laplacian computation, reaction terms, and Euler integration in a single GLSL program.",
+      "key_equations": ["du = Du × ∇²u - u×v² + f×(1-u) — complete u equation", "dv = Dv × ∇²v + u×v² - (f+k)×v — complete v equation", "uNew = clamp(u + dt×du, 0.0, 1.0) — Euler integration with stability clamping", "gl_FragColor = vec4(uNew, vNew, 0.0, 1.0) — output to RGBA texture"],
+      "code_functions": [{"name": "complete fragment shader", "purpose": "Full Gray-Scott PDE implementation"}, {"name": "uvv reaction term", "purpose": "Autocatalytic reaction computation"}, {"name": "clamp() stability", "purpose": "Numerical stability enforcement"}],
+      "viz": {"type": "Complete GLSL fragment shader with annotation", "stack": "Plain HTML/CSS, <pre> element with syntax highlighting", "shows": "Full shader source code with commented sections showing pipeline stages and parallel execution scale"},
+      "test": {"file": "src/tests/e2e/step039.test.ts", "assertion": "pre element present with complete fragment shader", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 40,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Float Precision and RGBA Encoding",
+      "context": "Addresses floating-point precision requirements and encoding strategies across different WebGL versions and hardware capabilities.",
+      "key_equations": ["RGBA32F memory: 512×512×4×4 bytes = 4.2 MB per texture", "RGBA8 memory: 512×512×4×1 bytes = 1.0 MB per texture", "Float32 precision: 23-bit mantissa ≈ 7 decimal digits", "Encoding scheme: u → R channel, v → G channel, B and A unused"],
+      "code_functions": [{"name": "selectTextureFormat(gl, isGL2)", "purpose": "Optimal format selection"}, {"name": "RGBA32F direct storage", "purpose": "WebGL2 native float textures"}, {"name": "texture2D().rg access", "purpose": "Direct float read/write"}],
+      "viz": {"type": "Format comparison table with memory analysis", "stack": "Plain HTML/CSS, <pre> element", "shows": "Side-by-side comparison of RGBA32F vs RGBA8 approaches, precision analysis, and memory usage calculations"},
+      "test": {"file": "src/tests/e2e/step040.test.ts", "assertion": "pre element present with float precision explanation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 41,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Visualization Pass: Screen Output",
+      "context": "Establishes the two-pass GPU architecture fundamental to real-time scientific visualization, separating computation from display rendering.",
+      "key_equations": ["SimShader: Gray-Scott PDE → new (u,v) state", "VizShader: (u,v) texture → RGB display", "gl_FragColor = vec4(visualize(u,v), 1.0) — visualization transformation"],
+      "code_functions": [{"name": "SimShader", "purpose": "Gray-Scott computation to FBO"}, {"name": "VizShader", "purpose": "FBO texture to screen display"}],
+      "viz": {"type": "GPU simulation with visualization shader", "stack": "WebGL dual-pass rendering, vizMode: grayscale, spots preset", "shows": "Two-pass GPU pipeline showing simulation FBO feeding visualization shader"},
+      "test": {"file": "src/tests/e2e/step041.test.ts", "assertion": "GPU simulation canvas with separate viz shader pipeline", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 42,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Integrating GPU Pipeline with Three.js",
+      "context": "Introduces Three.js as a WebGL abstraction framework that simplifies GPU computation setup while maintaining direct access to shader programming.",
+      "key_equations": ["PlaneGeometry(2,2) spans NDC space [-1,1] × [-1,1]", "OrthographicCamera with left=-1, right=1, top=1, bottom=-1", "Fragment shader invocation: width × height parallel executions"],
+      "code_functions": [{"name": "PlaneGeometry(2,2)", "purpose": "Full-screen quad mesh"}, {"name": "OrthographicCamera", "purpose": "1:1 NDC to UV mapping"}, {"name": "ShaderMaterial", "purpose": "Custom fragment shader binding"}],
+      "viz": {"type": "Three.js-based GPU simulation", "stack": "Three.js WebGLRenderer, PlaneGeometry, OrthographicCamera, ShaderMaterial", "shows": "GPU compute architecture using Three.js abstractions"},
+      "test": {"file": "src/tests/e2e/step042.test.ts", "assertion": "Three.js simulation canvas with PlaneGeometry and shader materials", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 43,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "First GPU Simulation: Correctness Check",
+      "context": "Establishes validation methodology for GPU implementations by comparing against trusted CPU reference calculations.",
+      "key_equations": ["Error metric: max(|GPU[i,j] - CPU[i,j]|) for all cells", "Acceptable threshold: max_error < 1e-4", "Validation: identical initial conditions, same parameters, same timesteps"],
+      "code_functions": [{"name": "CPU reference", "purpose": "Known-correct implementation"}, {"name": "gl.readPixels()", "purpose": "GPU readback for comparison"}, {"name": "error analysis", "purpose": "Statistical validation"}],
+      "viz": {"type": "Side-by-side CPU vs GPU comparison with error metrics", "stack": "Dual Canvas2D for CPU, WebGL for GPU, error statistics display", "shows": "CPU and GPU simulations with quantitative error analysis"},
+      "test": {"file": "src/tests/e2e/step043.test.ts", "assertion": "Dual simulation display with error statistics showing max_error < 1e-4", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 44,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "The Simulation Loop: rAF and Sub-Stepping",
+      "context": "Introduces the requestAnimationFrame loop architecture with sub-stepping to balance visual responsiveness with simulation speed.",
+      "key_equations": ["Pattern formation time: ~5000 Gray-Scott time units", "Wall-clock time at 1 step/frame: 5000/60 = 83 seconds", "Wall-clock time at 8 steps/frame: 5000/(60×8) = 10.4 seconds", "Frame budget: 16.67ms at 60fps"],
+      "code_functions": [{"name": "requestAnimationFrame()", "purpose": "60fps synchronization"}, {"name": "sub-stepping loop", "purpose": "Multiple sim steps per frame"}, {"name": "performance monitoring", "purpose": "60fps target maintenance"}],
+      "viz": {"type": "GPU simulation with variable sub-stepping controls", "stack": "WebGL with RAF loop, adjustable stepsPerFrame slider, FPS counter", "shows": "Real-time pattern formation with controllable time dilation"},
+      "test": {"file": "src/tests/e2e/step044.test.ts", "assertion": "Simulation with sub-stepping controls and FPS monitoring", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 45,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Passing Uniforms: f, k, Du, Dv, dt",
+      "context": "Explains the CPU-GPU data transfer mechanism through GLSL uniforms, enabling real-time parameter manipulation.",
+      "key_equations": ["Uniform declaration: uniform float f; uniform float k; uniform float Du; uniform float Dv; uniform float dt;", "CPU-side update: gl.uniform1f(uF, params.f)", "Data flow: JavaScript value → uniform buffer → shader constant"],
+      "code_functions": [{"name": "GLSL uniform declarations", "purpose": "Shader parameter interface"}, {"name": "gl.uniform1f()", "purpose": "Uniform location and update"}, {"name": "parameter synchronization", "purpose": "Frame-by-frame updates"}],
+      "viz": {"type": "GPU simulation with live parameter sliders", "stack": "WebGL with uniform binding, lil-gui parameter controls", "shows": "Real-time parameter changes affecting running simulation"},
+      "test": {"file": "src/tests/e2e/step045.test.ts", "assertion": "GPU simulation with live parameter controls affecting shader uniforms", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 46,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "lil-gui Setup: Parameter Panel",
+      "context": "Introduces lil-gui as the standard UI toolkit for real-time parameter manipulation in scientific simulations.",
+      "key_equations": ["Direct binding: gui.add(params, 'f', 0.01, 0.12) — slider range [0.01, 0.12]", "Mutation model: slider drag → params.f = newValue → next frame uses new value", "Update propagation: params object → uniform binding → GPU shader"],
+      "code_functions": [{"name": "parameter object", "purpose": "Centralized parameter storage"}, {"name": "gui.add()", "purpose": "Slider creation and binding"}, {"name": "onChange callbacks", "purpose": "Immediate parameter updates"}],
+      "viz": {"type": "GPU simulation with floating lil-gui parameter panel", "stack": "WebGL simulation, lil-gui controls, real-time parameter binding", "shows": "Interactive parameter panel with immediate visual feedback"},
+      "test": {"file": "src/tests/e2e/step046.test.ts", "assertion": "lil-gui panel present with parameter sliders affecting simulation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 47,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Live f and k Sliders",
+      "context": "Demonstrates real-time exploration of the Gray-Scott parameter space through interactive manipulation.",
+      "key_equations": ["f range: [0.01, 0.12] — feed parameter controls U replenishment", "k range: [0.04, 0.08] — kill parameter controls V removal rate", "Phase boundaries: spots ↔ stripes ↔ extinction transitions"],
+      "code_functions": [{"name": "f and k sliders", "purpose": "Real-time parameter exploration"}, {"name": "uniform updates", "purpose": "Without simulation restart"}, {"name": "visual feedback", "purpose": "Immediate pattern changes"}],
+      "viz": {"type": "GPU simulation with f and k sliders", "stack": "WebGL simulation, lil-gui f/k controls, live parameter binding", "shows": "Real-time (f,k) parameter exploration with immediate pattern transitions"},
+      "test": {"file": "src/tests/e2e/step047.test.ts", "assertion": "Live f and k sliders causing visible pattern transitions", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 48,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Preset System: Named Configurations",
+      "context": "Establishes a standardized vocabulary for Gray-Scott patterns through named parameter configurations.",
+      "key_equations": ["Preset structure: {name: 'spots', f: 0.035, k: 0.065, Du: 0.2097, Dv: 0.105}", "Parameter loading: Object.assign(params, PRESETS[presetName])", "Simulation reset: new parameters → clear state → restart with center seed"],
+      "code_functions": [{"name": "PRESETS object", "purpose": "Named parameter configurations"}, {"name": "GUI dropdown", "purpose": "Preset selection interface"}, {"name": "parameter loading", "purpose": "Simulation reset functionality"}],
+      "viz": {"type": "GPU simulation with preset dropdown menu", "stack": "WebGL simulation, lil-gui preset selector, parameter loading system", "shows": "Preset dropdown enabling instant pattern switching"},
+      "test": {"file": "src/tests/e2e/step048.test.ts", "assertion": "Preset dropdown with multiple named configurations", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 49,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Preset: Spots",
+      "context": "Introduces the fundamental 'spots' pattern as the archetypal Turing structure in Gray-Scott systems.",
+      "key_equations": ["Spots parameters: f=0.035, k=0.065, Du=0.2097, Dv=0.105", "Pattern characteristics: isolated, stable, hexagonal packing", "Boundary condition: high k prevents V spreading"],
+      "code_functions": [{"name": "spots parameters", "purpose": "Stable spot pattern values"}, {"name": "pattern recognition", "purpose": "Visual characterization"}, {"name": "biological analogy", "purpose": "Comparison with natural patterns"}],
+      "viz": {"type": "GPU simulation locked to spots preset", "stack": "WebGL simulation with spots parameters (f=0.035, k=0.065)", "shows": "Canonical Turing spot pattern formation and stabilization"},
+      "test": {"file": "src/tests/e2e/step049.test.ts", "assertion": "GPU simulation showing stable spot pattern formation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 50,
+      "chapter": 4,
+      "chapter_name": "WebGL GPU Pipeline",
+      "title": "Preset: Stripes",
+      "context": "Demonstrates how increased feed parameter f enables connected domain formation instead of isolated spots.",
+      "key_equations": ["Stripes parameters: f=0.060, k=0.062, Du=0.2097, Dv=0.105", "Higher f → more U supply → connected V domains", "Pattern topology: linear, connected, labyrinth-like"],
+      "code_functions": [{"name": "stripes parameters", "purpose": "Connected stripe pattern values"}, {"name": "topology analysis", "purpose": "Connected vs isolated structures"}, {"name": "parameter comparison", "purpose": "Spots vs stripes transitions"}],
+      "viz": {"type": "GPU simulation locked to stripes preset", "stack": "WebGL simulation with stripes parameters (f=0.060, k=0.062)", "shows": "Connected labyrinthine stripe pattern formation"},
+      "test": {"file": "src/tests/e2e/step050.test.ts", "assertion": "GPU simulation showing connected stripe pattern formation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 51,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Preset: Worms",
+      "context": "Introduces intermediate pattern topology between isolated spots and connected stripes, demonstrating continuous transitions.",
+      "key_equations": ["Worms parameters: f=0.078, k=0.061, Du=0.2097, Dv=0.105", "Topology: elongated, moderately connected, mobile", "Space filling: more efficient than spots, less than stripes"],
+      "code_functions": [{"name": "worms parameters", "purpose": "Elongated structure values"}, {"name": "mobility analysis", "purpose": "Movement pattern study"}, {"name": "topological characterization", "purpose": "Connectivity assessment"}],
+      "viz": {"type": "GPU simulation locked to worms preset", "stack": "WebGL simulation with worms parameters (f=0.078, k=0.061)", "shows": "Elongated, mobile worm-like pattern structures"},
+      "test": {"file": "src/tests/e2e/step051.test.ts", "assertion": "GPU simulation showing elongated worm pattern formation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 52,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Preset: Mitosis",
+      "context": "Demonstrates Gray-Scott's ability to model biological self-replication through the mitosis pattern.",
+      "key_equations": ["Mitosis parameters: f=0.028, k=0.053, Du=0.2097, Dv=0.105", "Low f + low k → growth and elongation before arrest", "Division cycle: growth → elongation → split → repeat"],
+      "code_functions": [{"name": "mitosis parameters", "purpose": "Self-replication dynamics"}, {"name": "division cycle analysis", "purpose": "Timing and pattern study"}, {"name": "biological analogy", "purpose": "Cell division comparison"}],
+      "viz": {"type": "GPU simulation locked to mitosis preset", "stack": "WebGL simulation with mitosis parameters (f=0.028, k=0.053)", "shows": "Self-replicating spot division cycles mimicking cell mitosis"},
+      "test": {"file": "src/tests/e2e/step052.test.ts", "assertion": "GPU simulation showing mitotic division cycles", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 53,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Preset: Bubbles",
+      "context": "Introduces domain growth and competition dynamics through the bubbles preset showing space-filling behavior.",
+      "key_equations": ["Bubbles parameters: f=0.098, k=0.057, Du=0.2097, Dv=0.105", "Very high f → sustained U replenishment → unlimited growth", "Domain competition → space-filling → boundary stabilization"],
+      "code_functions": [{"name": "bubbles parameters", "purpose": "Unlimited domain growth"}, {"name": "boundary dynamics", "purpose": "Domain competition analysis"}, {"name": "soap foam comparison", "purpose": "Coarsening physics analogy"}],
+      "viz": {"type": "GPU simulation locked to bubbles preset", "stack": "WebGL simulation with bubbles parameters (f=0.098, k=0.057)", "shows": "Growing bubble domains filling space with stable boundaries"},
+      "test": {"file": "src/tests/e2e/step053.test.ts", "assertion": "GPU simulation showing bubble domain growth and competition", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 54,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Preset: Coral",
+      "context": "Demonstrates parameter sensitivity and fractal boundaries in the Gray-Scott phase space through dendritic branching.",
+      "key_equations": ["Coral parameters: f=0.059, k=0.062, Du=0.2097, Dv=0.105", "Tiny difference: coral f=0.059 vs stripes f=0.060 (0.001 difference)", "Topology shift: connected labyrinths → dendritic branching"],
+      "code_functions": [{"name": "coral parameters", "purpose": "Dendritic branching patterns"}, {"name": "sensitivity analysis", "purpose": "Small parameter effects"}, {"name": "stripes comparison", "purpose": "Nearby preset analysis"}],
+      "viz": {"type": "GPU simulation locked to coral preset", "stack": "WebGL simulation with coral parameters (f=0.059, k=0.062)", "shows": "Dendritic coral-like branching pattern formation"},
+      "test": {"file": "src/tests/e2e/step054.test.ts", "assertion": "GPU simulation showing dendritic coral branching patterns", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 55,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Preset: Solitons",
+      "context": "Introduces traveling wave phenomena in 2D Gray-Scott systems, connecting back to 1D wave theory.",
+      "key_equations": ["Solitons parameters: f=0.030, k=0.057, Du=0.2097, Dv=0.105", "Low f → insufficient U for static patterns → traveling waves", "Soliton properties: constant speed, constant shape, collision survival"],
+      "code_functions": [{"name": "solitons parameters", "purpose": "Stable traveling waves"}, {"name": "collision dynamics", "purpose": "Soliton interaction analysis"}, {"name": "1D connection", "purpose": "Link to chapter 2 waves"}],
+      "viz": {"type": "GPU simulation locked to solitons preset", "stack": "WebGL simulation with solitons parameters (f=0.030, k=0.057)", "shows": "Traveling soliton pulses with collision interactions"},
+      "test": {"file": "src/tests/e2e/step055.test.ts", "assertion": "GPU simulation showing traveling soliton waves", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 56,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "The (f,k) Parameter Map",
+      "context": "Presents the complete (f,k) parameter space as the master control surface for Gray-Scott pattern selection.",
+      "key_equations": ["Parameter ranges: f ∈ [0.01, 0.12], k ∈ [0.04, 0.08]", "Phase boundaries: spots | stripes | worms | bubbles | extinction", "Fractal boundaries: small parameter changes → qualitative transitions"],
+      "code_functions": [{"name": "(f,k) sliders", "purpose": "Full range exploration"}, {"name": "phase transitions", "purpose": "Real-time boundary crossing"}, {"name": "phase diagram", "purpose": "Named region overlay"}],
+      "viz": {"type": "GPU simulation with (f,k) sliders and phase diagram", "stack": "WebGL simulation, lil-gui (f,k) controls, D3 phase diagram overlay", "shows": "Interactive exploration of the complete (f,k) parameter space"},
+      "test": {"file": "src/tests/e2e/step056.test.ts", "assertion": "Interactive (f,k) parameter space with phase diagram overlay", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 57,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Mouse Interaction: Drawing V",
+      "context": "Introduces interactive seeding through mouse input, demonstrating the continuous nature of reaction-diffusion systems.",
+      "key_equations": ["Mouse coordinate mapping: screen (x,y) → UV coordinates (u,v) ∈ [0,1]²", "V injection: V(x,y) = 1.0 at mouse position", "Continuous dynamics: new seeds processed by same PDEs"],
+      "code_functions": [{"name": "mouse event handling", "purpose": "Coordinate transformation"}, {"name": "V injection", "purpose": "Real-time simulation modification"}, {"name": "continuous processing", "purpose": "No restart required"}],
+      "viz": {"type": "GPU simulation with mouse painting interaction", "stack": "WebGL simulation, mouse event listeners, real-time V injection", "shows": "Interactive V seeding with immediate pattern response"},
+      "test": {"file": "src/tests/e2e/step057.test.ts", "assertion": "Mouse interaction causing V injection and pattern response", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 58,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Seeding Shader: GPU-Side Paint",
+      "context": "Demonstrates GPU-side implementation of interactive seeding through dedicated shader passes.",
+      "key_equations": ["SeedShader: third GPU pass in addition to simulation and visualization", "Gaussian seed: V = exp(-(dx² + dy²)/σ²) at mouse position", "GPU workflow: SimShader → SeedShader → VizShader → screen"],
+      "code_functions": [{"name": "SeedShader", "purpose": "Gaussian V injection shader"}, {"name": "coordinate uniforms", "purpose": "Mouse to shader mapping"}, {"name": "three-pass pipeline", "purpose": "Seeding integration"}],
+      "viz": {"type": "GPU simulation with GPU-side seeding shader", "stack": "WebGL three-pass pipeline, SeedShader, mouse coordinate uniforms", "shows": "GPU-implemented mouse seeding with Gaussian brush patterns"},
+      "test": {"file": "src/tests/e2e/step058.test.ts", "assertion": "Three-pass GPU pipeline with seeding shader implementation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 59,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Grayscale Mapping",
+      "context": "Establishes the fundamental grayscale visualization as the baseline for understanding Gray-Scott concentration fields.",
+      "key_equations": ["Grayscale mapping: luminance = U where U ∈ [0,1]", "RGB output: gl_FragColor = vec4(U, U, U, 1.0)", "Data fidelity: direct mapping with no transformation"],
+      "code_functions": [{"name": "U-to-luminance", "purpose": "Simple grayscale mapping"}, {"name": "direct representation", "purpose": "No aesthetic enhancement"}, {"name": "baseline visualization", "purpose": "Foundation for other modes"}],
+      "viz": {"type": "GPU simulation with grayscale visualization mode", "stack": "WebGL simulation, grayscale viz shader, spots preset", "shows": "Raw U concentration field as grayscale intensity"},
+      "test": {"file": "src/tests/e2e/step059.test.ts", "assertion": "GPU simulation displaying grayscale U concentration field", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 60,
+      "chapter": 5,
+      "chapter_name": "Presets and Parameter Space",
+      "title": "Inverted Grayscale",
+      "context": "Introduces the conventional inverted grayscale visualization that makes patterns appear as bright features.",
+      "key_equations": ["Inverted mapping: luminance = 1 - U where U ∈ [0,1]", "RGB output: gl_FragColor = vec4(1.0-U, 1.0-U, 1.0-U, 1.0)", "Visual convention: bright patterns on dark background"],
+      "code_functions": [{"name": "(1-U) mapping", "purpose": "Inverted grayscale shader"}, {"name": "bright-on-dark", "purpose": "Perceptual advantage"}, {"name": "standard convention", "purpose": "Gray-Scott display norm"}],
+      "viz": {"type": "GPU simulation with inverted grayscale visualization", "stack": "WebGL simulation, inverted grayscale viz shader, spots preset", "shows": "V-active patterns as bright features on dark background"},
+      "test": {"file": "src/tests/e2e/step060.test.ts", "assertion": "GPU simulation displaying inverted grayscale with bright patterns", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 61,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "False Color LUT",
+      "context": "Introduces false color visualization for revealing concentration gradients invisible in grayscale mapping.",
+      "key_equations": ["LUT mapping: U ∈ [0,1] → RGB color ramp", "Multi-stop ramp: discrete color transitions at specific U thresholds", "Gradient visibility: color shifts reveal subtle concentration boundaries"],
+      "code_functions": [{"name": "color lookup table", "purpose": "Multi-stop ramp implementation"}, {"name": "U-to-color mapping", "purpose": "GLSL color ramp shader"}, {"name": "gradient comparison", "purpose": "Grayscale vs color analysis"}],
+      "viz": {"type": "GPU simulation with false color LUT visualization", "stack": "WebGL simulation, multi-stop color ramp shader, spots preset", "shows": "Concentration gradients revealed through color transitions"},
+      "test": {"file": "src/tests/e2e/step061.test.ts", "assertion": "GPU simulation displaying false color concentration mapping", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 62,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Gradient Mapping: Two-Color Interpolation",
+      "context": "Demonstrates simple two-color gradient mapping as an aesthetic enhancement over grayscale visualization.",
+      "key_equations": ["Gradient mapping: mix(color1, color2, U) where U ∈ [0,1]", "GLSL mix: linear interpolation between two color endpoints", "Color choice: high contrast for maximum perceptual distinction"],
+      "code_functions": [{"name": "GLSL mix()", "purpose": "Color interpolation function"}, {"name": "color pair selection", "purpose": "Optimal visual contrast"}, {"name": "D3.js comparison", "purpose": "Color scale concepts"}],
+      "viz": {"type": "GPU simulation with two-color gradient visualization", "stack": "WebGL simulation, gradient mapping shader (blue to white), spots preset", "shows": "Aesthetically pleasing color gradient across concentration range"},
+      "test": {"file": "src/tests/e2e/step062.test.ts", "assertion": "GPU simulation displaying smooth two-color gradient mapping", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 63,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Multi-Band: Visualising U and V Together",
+      "context": "Introduces dual-channel visualization to reveal the anti-correlation between U and V species concentrations.",
+      "key_equations": ["Dual mapping: gl_FragColor = vec4(U, V, 0.0, 1.0)", "Anti-correlation: high U → low V, high V → low U", "Color interpretation: red=U, green=V, yellow=both, black=neither"],
+      "code_functions": [{"name": "dual-channel mapping", "purpose": "Simultaneous U and V visualization"}, {"name": "anti-correlation demo", "purpose": "Color mixing analysis"}, {"name": "species interaction", "purpose": "Relationship visualization"}],
+      "viz": {"type": "GPU simulation with dual U/V channel visualization", "stack": "WebGL simulation, dual-channel viz shader, spots preset", "shows": "U (red) and V (green) concentrations revealing anti-correlation"},
+      "test": {"file": "src/tests/e2e/step063.test.ts", "assertion": "GPU simulation displaying dual-channel U/V visualization", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 64,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Temporal Blending: Motion Blur",
+      "context": "Introduces temporal blending to visualize pattern motion through frame-to-frame accumulation.",
+      "key_equations": ["Temporal blend: newFrame = α × current + (1-α) × previous", "Trail length: longer trails with smaller α (more history retention)", "Static patterns: unaffected by temporal blending"],
+      "code_functions": [{"name": "frame blending", "purpose": "Previous frame texture mixing"}, {"name": "alpha parameter", "purpose": "Trail length control"}, {"name": "motion visualization", "purpose": "Dynamic pattern analysis"}],
+      "viz": {"type": "GPU simulation with temporal blending visualization", "stack": "WebGL simulation, temporal blending shader, solitons preset", "shows": "Pattern motion trails revealing velocity and trajectory"},
+      "test": {"file": "src/tests/e2e/step064.test.ts", "assertion": "GPU simulation displaying motion blur trails for moving patterns", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 65,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Edge Detection: Sobel Filter",
+      "context": "Introduces edge detection to reveal pattern topology and structural boundaries in Gray-Scott systems.",
+      "key_equations": ["Sobel X: [-1,0,1; -2,0,2; -1,0,1] × U — horizontal edge detection", "Sobel Y: [-1,-2,-1; 0,0,0; 1,2,1] × U — vertical edge detection", "Edge magnitude: sqrt(Gx² + Gy²) — combined edge strength"],
+      "code_functions": [{"name": "Sobel filter", "purpose": "GLSL edge detection implementation"}, {"name": "3×3 convolution", "purpose": "Edge detection kernel"}, {"name": "topology visualization", "purpose": "Structure boundary analysis"}],
+      "viz": {"type": "GPU simulation with Sobel edge detection visualization", "stack": "WebGL simulation, Sobel edge filter shader, spots preset", "shows": "Pattern boundaries and topological structure as wireframe edges"},
+      "test": {"file": "src/tests/e2e/step065.test.ts", "assertion": "GPU simulation displaying Sobel edge detection of pattern boundaries", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 66,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Contour Lines: Iso-Value Rendering",
+      "context": "Introduces iso-contour visualization for quantitative analysis of concentration gradients in Gray-Scott patterns.",
+      "key_equations": ["Iso-contour condition: U(x,y) = constant", "Contour spacing: lines at U = 0.1, 0.2, 0.3, ... 0.9", "GLSL implementation: fract(U × contourLevels) creates repeated boundaries"],
+      "code_functions": [{"name": "iso-value rendering", "purpose": "fract() function in GLSL"}, {"name": "contour spacing", "purpose": "Line density control"}, {"name": "quantitative levels", "purpose": "Concentration visualization"}],
+      "viz": {"type": "GPU simulation with iso-contour line visualization", "stack": "WebGL simulation, iso-contour shader, spots preset", "shows": "Precise concentration contour lines revealing gradient structure"},
+      "test": {"file": "src/tests/e2e/step066.test.ts", "assertion": "GPU simulation displaying iso-contour lines at fixed U values", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 67,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Zoom and Pan",
+      "context": "Introduces zoom and pan functionality to reveal fine-scale spatial structure in Gray-Scott patterns.",
+      "key_equations": ["UV transformation: uv_zoomed = (uv - offset) × scale", "Zoom factor: scale > 1.0 → zoom in, scale < 1.0 → zoom out", "Pan offset: uv_offset shifts visible region"],
+      "code_functions": [{"name": "UV transformation", "purpose": "Visualization shader coordinates"}, {"name": "scale and offset", "purpose": "Uniform parameters"}, {"name": "zoom/pan controls", "purpose": "Interactive navigation"}],
+      "viz": {"type": "GPU simulation with zoom and pan controls", "stack": "WebGL simulation, UV transform shader, zoom/pan controls, spots preset", "shows": "Fine-scale concentration gradients at pattern boundaries"},
+      "test": {"file": "src/tests/e2e/step067.test.ts", "assertion": "GPU simulation with interactive zoom and pan functionality", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 68,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Tiling: Multi-Scale Rendering",
+      "context": "Demonstrates multi-scale visualization to reveal scale invariance properties of Gray-Scott pattern formation.",
+      "key_equations": ["Quadrant mapping: screen divided into 2×2 grid", "Scale factors: 1×, 2×, 4×, 8× zoom per quadrant", "UV transforms: uv_quad = (uv % 0.5) × scale_factor"],
+      "code_functions": [{"name": "viewport subdivision", "purpose": "Quadrant division in shader"}, {"name": "multiple zoom levels", "purpose": "Different scales per quadrant"}, {"name": "scale invariance", "purpose": "Visual comparison analysis"}],
+      "viz": {"type": "GPU simulation with 4-quadrant multi-scale tiling", "stack": "WebGL simulation, quadrant tiling shader, multiple zoom levels, spots preset", "shows": "Same pattern at 1×, 2×, 4×, 8× magnification revealing scale properties"},
+      "test": {"file": "src/tests/e2e/step068.test.ts", "assertion": "GPU simulation displaying 4-quadrant multi-scale tiling", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 69,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Stats.js: FPS and Timing",
+      "context": "Introduces performance monitoring and profiling for GPU-based scientific simulations using Stats.js.",
+      "key_equations": ["Target performance: 60fps = 16.67ms/frame", "GPU throughput: 256×256×stepsPerFrame cell-updates per frame", "Bottleneck analysis: sim shader vs viz shader performance"],
+      "code_functions": [{"name": "Stats.js integration", "purpose": "FPS and timing display"}, {"name": "bottleneck identification", "purpose": "Performance analysis"}, {"name": "parameter tuning", "purpose": "Frame rate optimization"}],
+      "viz": {"type": "GPU simulation with Stats.js performance overlay", "stack": "WebGL simulation, Stats.js FPS/timing display, performance monitoring", "shows": "Real-time FPS, frame timing, and memory usage statistics"},
+      "test": {"file": "src/tests/e2e/step069.test.ts", "assertion": "Stats.js performance panel with FPS and timing display", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 70,
+      "chapter": 6,
+      "chapter_name": "Visualization Modes",
+      "title": "Capturing Frames: PNG Export",
+      "context": "Introduces frame capture and export functionality while explaining WebGL buffer management requirements.",
+      "key_equations": ["Buffer preservation: preserveDrawingBuffer: true prevents automatic clearing", "Export process: WebGL canvas → toDataURL() → PNG data URL", "Performance cost: buffer preservation increases memory usage"],
+      "code_functions": [{"name": "preserveDrawingBuffer", "purpose": "WebGL context option"}, {"name": "toDataURL()", "purpose": "PNG export implementation"}, {"name": "export button", "purpose": "File download integration"}],
+      "viz": {"type": "GPU simulation with PNG export capability", "stack": "WebGL simulation with preserveDrawingBuffer, export button, file download", "shows": "Frame capture and PNG export from live simulation"},
+      "test": {"file": "src/tests/e2e/step070.test.ts", "assertion": "PNG export button functionality with successful frame capture", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 71,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Stability Analysis: CFL Condition",
+      "context": "Introduces stability analysis for explicit time integration schemes through the Courant-Friedrichs-Lewy condition.",
+      "key_equations": ["CFL condition: Δt ≤ h²/(4D) for 2D diffusion", "Stability constraint: ensures information propagation doesn't exceed grid resolution", "Critical timestep: Δt_max = 0.25 × h² / D_max where D_max = max(Du, Dv)"],
+      "code_functions": [{"name": "CFL ratio control", "purpose": "Interactive stability boundary exploration"}, {"name": "blowup detection", "purpose": "Numerical instability monitoring"}, {"name": "stability visualization", "purpose": "Safe vs unstable region display"}],
+      "viz": {"type": "Interactive D3 stability diagram", "stack": "D3.js stability regions, parameter sliders, blowup animation", "shows": "CFL stability boundary and consequences of violation"},
+      "test": {"file": "src/tests/e2e/step071.test.ts", "assertion": "CFL stability analysis with interactive parameter control", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 72,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Numerical Instability Demo: dt Too Large",
+      "context": "Provides hands-on demonstration of CFL condition violation through deliberate timestep increase beyond stability limit.",
+      "key_equations": ["Violation condition: dt > h²/(4D) → exponential growth", "Instability growth: |error| ∝ exp(λt) where λ > 0 for unstable modes", "Blowup detection: max(|u|, |v|) > threshold or isNaN(u)"],
+      "code_functions": [{"name": "timestep ramping", "purpose": "Gradual instability onset"}, {"name": "explosion visualization", "purpose": "Pattern blowup animation"}, {"name": "automatic reset", "purpose": "Recovery demonstration"}],
+      "viz": {"type": "GPU simulation with deliberate instability", "stack": "WebGL simulation, timestep control, instability animation, automatic reset", "shows": "Pattern explosion due to CFL violation with dramatic visual feedback"},
+      "test": {"file": "src/tests/e2e/step072.test.ts", "assertion": "Controlled instability demonstration with automatic recovery", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 73,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "RK4 Integration: Four-Stage Derivation",
+      "context": "Introduces fourth-order Runge-Kutta integration theory with detailed mathematical derivation and implementation strategy.",
+      "key_equations": ["k₁ = dt × f(u_n, v_n) — slope at beginning", "k₂ = dt × f(u_n + k₁/2, v_n + k₁/2) — slope at midpoint using k₁", "k₃ = dt × f(u_n + k₂/2, v_n + k₂/2) — slope at midpoint using k₂", "k₄ = dt × f(u_n + k₃, v_n + k₃) — slope at end using k₃", "u_{n+1} = u_n + (k₁ + 2k₂ + 2k₃ + k₄)/6 — weighted combination"],
+      "code_functions": [{"name": "RK4 derivation", "purpose": "Mathematical stage visualization"}, {"name": "error comparison", "purpose": "Euler vs RK4 accuracy analysis"}, {"name": "geometric interpretation", "purpose": "Slope meaning visualization"}],
+      "viz": {"type": "Interactive D3 mathematical derivation", "stack": "D3.js stage visualization, slope diagrams, error analysis charts", "shows": "Step-by-step RK4 derivation with geometric interpretation"},
+      "test": {"file": "src/tests/e2e/step073.test.ts", "assertion": "Interactive RK4 derivation with stage-by-stage visualization", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 74,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "RK4 on the GPU: Four Ping-Pong Passes",
+      "context": "Demonstrates GPU implementation of RK4 integration requiring multiple framebuffers and ping-pong rendering passes.",
+      "key_equations": ["Pass 1: k₁ = computeDerivatives(u_n, v_n)", "Pass 2: k₂ = computeDerivatives(u_n + 0.5×k₁, v_n + 0.5×k₁)", "Pass 3: k₃ = computeDerivatives(u_n + 0.5×k₂, v_n + 0.5×k₂)", "Pass 4: k₄ = computeDerivatives(u_n + k₃, v_n + k₃)", "Final: u_{n+1} = u_n + (k₁ + 2k₂ + 2k₃ + k₄)/6"],
+      "code_functions": [{"name": "6-FBO architecture", "purpose": "Multiple framebuffer management"}, {"name": "4-pass pipeline", "purpose": "RK4 stage rendering"}, {"name": "memory optimization", "purpose": "GPU bandwidth management"}],
+      "viz": {"type": "GPU simulation with RK4 integration", "stack": "WebGL RK4 shader, 6-FBO architecture, performance monitoring", "shows": "High-precision pattern evolution with RK4 accuracy"},
+      "test": {"file": "src/tests/e2e/step074.test.ts", "assertion": "GPU RK4 simulation with 4-pass rendering pipeline", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 75,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Euler vs RK4: Accuracy Comparison",
+      "context": "Provides side-by-side comparison of Euler and RK4 integration methods with identical initial conditions and parameter sets.",
+      "key_equations": ["Euler error: O(dt) — linear accumulation", "RK4 error: O(dt⁴) — quartic scaling advantage", "Equivalent accuracy: dt_RK4 ≈ 4 × dt_Euler", "Performance ratio: RK4_cost / Euler_cost ≈ 6× memory, 4× compute"],
+      "code_functions": [{"name": "split-screen simulation", "purpose": "Synchronized method comparison"}, {"name": "error tracking", "purpose": "Accuracy difference measurement"}, {"name": "convergence analysis", "purpose": "Performance trade-off evaluation"}],
+      "viz": {"type": "Dual GPU simulation with method comparison", "stack": "WebGL split-screen, synchronized parameter control, error tracking", "shows": "Side-by-side Euler vs RK4 with identical conditions revealing accuracy differences"},
+      "test": {"file": "src/tests/e2e/step075.test.ts", "assertion": "Split-screen Euler vs RK4 comparison with synchronized parameters", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 76,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Adaptive Time Stepping",
+      "context": "Introduces adaptive timestep algorithms using step-doubling and Richardson extrapolation for automatic error control.",
+      "key_equations": ["Step doubling: compute u(t+2h) using single step vs two h-steps", "Richardson error estimate: |error| ≈ |u_2h - u_h|/15 for RK4", "Adaptive control: dt_new = dt_old × (tolerance/error)^(1/5)", "Safety factor: 0.8 ≤ scaling ≤ 2.0 to prevent thrashing"],
+      "code_functions": [{"name": "step doubling", "purpose": "Error estimation via Richardson extrapolation"}, {"name": "adaptive controller", "purpose": "Timestep adjustment algorithm"}, {"name": "safety bounds", "purpose": "Stability prevention system"}],
+      "viz": {"type": "GPU simulation with adaptive timestep control", "stack": "WebGL simulation, dual-step error estimation, timestep history display", "shows": "Automatic timestep adaptation responding to pattern complexity"},
+      "test": {"file": "src/tests/e2e/step076.test.ts", "assertion": "Adaptive timestep simulation with automatic error control", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 77,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Spatial Resolution: 128 vs 512 vs 1024",
+      "context": "Compares pattern formation at different grid resolutions to demonstrate spatial resolution effects on pattern wavelength and detail.",
+      "key_equations": ["Nyquist limit: λ_min ≈ 4h where h is grid spacing", "Resolution scaling: 1024² requires 64× memory vs 128²", "Pattern wavelength: λ ∝ √(Du/k) — intrinsic length scale", "Grid requirement: N > 4λ/L for proper resolution"],
+      "code_functions": [{"name": "multi-resolution comparison", "purpose": "128², 256², 512², 1024² grid analysis"}, {"name": "memory tracking", "purpose": "Resource usage monitoring"}, {"name": "pattern detail analysis", "purpose": "Resolution vs quality evaluation"}],
+      "viz": {"type": "Multi-resolution GPU simulation comparison", "stack": "WebGL multi-viewport, resolution controls, memory monitoring", "shows": "Pattern detail vs grid resolution with performance metrics"},
+      "test": {"file": "src/tests/e2e/step077.test.ts", "assertion": "Multi-resolution comparison with performance monitoring", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 78,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Anti-Aliasing: Bilinear vs Nearest Sampling",
+      "context": "Explores WebGL texture filtering modes and their impact on both visualization quality and numerical simulation accuracy.",
+      "key_equations": ["Bilinear interpolation: value = (1-fx)(1-fy)×c00 + fx(1-fy)×c10 + ...", "Nearest sampling: value = texture[floor(u×width), floor(v×height)]", "Numerical dissipation: bilinear filtering acts like artificial viscosity", "Aliasing frequency: sampling < 2×pattern frequency → artifacts"],
+      "code_functions": [{"name": "filtering comparison", "purpose": "GL_NEAREST vs GL_LINEAR analysis"}, {"name": "zoom aliasing", "purpose": "Scale-dependent artifact demonstration"}, {"name": "accuracy testing", "purpose": "Numerical precision evaluation"}],
+      "viz": {"type": "GPU simulation with texture filtering comparison", "stack": "WebGL simulation, dual filtering modes, zoom controls, aliasing demonstration", "shows": "Visual and numerical differences between texture filtering modes"},
+      "test": {"file": "src/tests/e2e/step078.test.ts", "assertion": "Texture filtering comparison showing visual and numerical differences", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 79,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Mass Conservation Check",
+      "context": "Implements mass conservation monitoring as a diagnostic tool for detecting numerical errors and implementation problems.",
+      "key_equations": ["Total mass: M(t) = ∬(U + V)dA over entire domain", "Conservation property: dM/dt = f×∬(1-U)dA - (f+k)×∬V dA < 0", "Numerical check: M(t+dt) ≤ M(t) must hold for all timesteps", "Error detection: |dM/dt - expected| > tolerance indicates problems"],
+      "code_functions": [{"name": "mass integration", "purpose": "GPU reduction for total mass calculation"}, {"name": "conservation tracking", "purpose": "Real-time mass change monitoring"}, {"name": "violation detection", "purpose": "Numerical error identification"}],
+      "viz": {"type": "D3 conservation monitoring with real-time mass tracking", "stack": "D3.js time series, GPU mass reduction, conservation analysis", "shows": "Mass conservation over time with violation detection"},
+      "test": {"file": "src/tests/e2e/step079.test.ts", "assertion": "Mass conservation monitoring with violation detection", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 80,
+      "chapter": 7,
+      "chapter_name": "Numerical Methods & Performance",
+      "title": "Convergence Study",
+      "context": "Implements Richardson extrapolation-based convergence analysis to verify spatial discretization accuracy and implementation correctness.",
+      "key_equations": ["Richardson extrapolation: u_exact ≈ u_h + (u_h - u_2h)/(2^p - 1)", "Convergence order: p = log₂[(u_4h - u_2h)/(u_2h - u_h)]", "Expected order: p ≈ 2 for centered finite differences", "Error scaling: |error| ∝ h^p where p is convergence order"],
+      "code_functions": [{"name": "multi-grid analysis", "purpose": "h, h/2, h/4 resolution comparison"}, {"name": "Richardson extrapolation", "purpose": "Error estimation and convergence order"}, {"name": "accuracy verification", "purpose": "Implementation correctness validation"}],
+      "viz": {"type": "D3 convergence analysis with error scaling plots", "stack": "D3.js error plots, multi-resolution data, Richardson analysis", "shows": "Error vs grid spacing confirming O(h²) convergence"},
+      "test": {"file": "src/tests/e2e/step080.test.ts", "assertion": "Convergence study showing O(h²) spatial accuracy", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 81,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Anisotropic Diffusion Tensor",
+      "context": "Extends isotropic diffusion to full tensor form enabling directional diffusion effects and anisotropic pattern formation.",
+      "key_equations": ["Tensor diffusion: ∂u/∂t = ∇·(D∇u) where D is 2×2 tensor", "Matrix form: D = [Dxx, Dxy; Dyx, Dyy] with Dxy = Dyx", "Principal directions: eigenvectors of D determine preferred axes", "Anisotropy ratio: λ_max/λ_min controls directional strength"],
+      "code_functions": [{"name": "tensor diffusion", "purpose": "2×2 matrix diffusion operator"}, {"name": "eigenvalue visualization", "purpose": "Tensor orientation display"}, {"name": "anisotropy control", "purpose": "Directional strength adjustment"}],
+      "viz": {"type": "GPU simulation with anisotropic diffusion tensor", "stack": "WebGL tensor diffusion shader, tensor visualization overlay, parameter controls", "shows": "Directional pattern growth with tensor field visualization"},
+      "test": {"file": "src/tests/e2e/step081.test.ts", "assertion": "Anisotropic tensor diffusion with directional pattern formation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 82,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Noise Perturbation: Gaussian Noise on U",
+      "context": "Introduces stochastic perturbations to break symmetry and accelerate Turing pattern formation through noise-driven nucleation.",
+      "key_equations": ["Stochastic term: dU/dt = ... + σ×ξ(x,t) where ξ is white noise", "Noise amplitude: σ controls perturbation strength", "Correlation: ⟨ξ(x,t)ξ(x',t')⟩ = δ(x-x')δ(t-t')", "Symmetry breaking: uniform states become unstable to noise"],
+      "code_functions": [{"name": "GPU PRNG", "purpose": "Pseudo-random number generation"}, {"name": "noise amplitude", "purpose": "Stochastic perturbation control"}, {"name": "nucleation timing", "purpose": "Pattern formation acceleration measurement"}],
+      "viz": {"type": "GPU simulation with stochastic noise perturbations", "stack": "WebGL simulation, GPU PRNG, noise visualization, nucleation timing", "shows": "Accelerated pattern formation through noise-driven symmetry breaking"},
+      "test": {"file": "src/tests/e2e/step082.test.ts", "assertion": "Stochastic simulation with noise-accelerated pattern nucleation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 83,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Spatially Varying f and k: Parameter Maps",
+      "context": "Introduces spatially-heterogeneous parameters through texture-based parameter maps enabling complex pattern interactions.",
+      "key_equations": ["Parameter fields: f = f(x,y) and k = k(x,y) as spatial functions", "Gradient effects: ∇f and ∇k create pattern drift and boundary conditions", "Pattern pinning: sharp parameter changes can trap or reflect patterns", "Texture mapping: parameters sampled from GPU textures for efficiency"],
+      "code_functions": [{"name": "parameter textures", "purpose": "2D parameter field generation"}, {"name": "gradient visualization", "purpose": "Parameter landscape display"}, {"name": "interactive painting", "purpose": "Real-time parameter editing"}],
+      "viz": {"type": "GPU simulation with spatially-varying parameter maps", "stack": "WebGL parameter textures, gradient visualization, interactive painting tools", "shows": "Pattern behavior in heterogeneous parameter landscapes"},
+      "test": {"file": "src/tests/e2e/step083.test.ts", "assertion": "Spatially-varying parameters with pattern-parameter interactions", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 84,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Multi-Scale Simulation",
+      "context": "Implements coupled coarse-fine grid simulation to demonstrate scale separation and hierarchical pattern formation.",
+      "key_equations": ["Coarse grid: U_coarse, V_coarse at resolution N×N", "Fine grid: U_fine, V_fine at resolution 4N×4N", "Upscaling: U_coarse = ∫U_fine dA over coarse cells", "Downscaling: U_fine interpolated from U_coarse at boundaries"],
+      "code_functions": [{"name": "dual-grid coupling", "purpose": "Coarse-fine grid interaction"}, {"name": "upscaling", "purpose": "Fine to coarse averaging"}, {"name": "downscaling", "purpose": "Coarse to fine interpolation"}],
+      "viz": {"type": "Coupled multi-resolution GPU simulation", "stack": "WebGL dual-grid simulation, scale coupling visualization, resolution comparison", "shows": "Hierarchical pattern organization across spatial scales"},
+      "test": {"file": "src/tests/e2e/step084.test.ts", "assertion": "Multi-scale simulation with coarse-fine grid coupling", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 85,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "3D Extension Concept: Volumetric RD",
+      "context": "Explores conceptual extension to 3D volumetric reaction-diffusion with discussion of computational challenges and pattern types.",
+      "key_equations": ["3D Laplacian: ∇²u = ∂²u/∂x² + ∂²u/∂y² + ∂²u/∂z²", "6-neighbor stencil: u_{i,j,k±1} contributions in all three directions", "Memory scaling: N³ grows rapidly vs N² for 2D", "Pattern types: tubes, sheets, gyroid minimal surfaces"],
+      "code_functions": [{"name": "3D stencil", "purpose": "6-neighbor Laplacian operator"}, {"name": "memory analysis", "purpose": "3D computational complexity"}, {"name": "topology comparison", "purpose": "2D vs 3D pattern structures"}],
+      "viz": {"type": "Three.js conceptual 3D pattern visualization", "stack": "Three.js volumetric rendering, slice visualization, pattern topology comparison", "shows": "Conceptual 3D Gray-Scott patterns with topology analysis"},
+      "test": {"file": "src/tests/e2e/step085.test.ts", "assertion": "3D pattern concept visualization with topology comparison", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 86,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "3D Surface: Vertex Displacement by U",
+      "context": "Transforms 2D Gray-Scott concentration field into 3D heightfield surface for enhanced pattern topology visualization.",
+      "key_equations": ["Height mapping: z = A × U(x,y) where A is amplitude scaling", "Surface normal: n̂ = (-∂z/∂x, -∂z/∂y, 1) / ||(−∂z/∂x, −∂z/∂y, 1)||", "Gradient magnitude: |∇U| = √((∂U/∂x)² + (∂U/∂y)²)", "Curvature: κ = ∇²U at each point"],
+      "code_functions": [{"name": "heightfield displacement", "purpose": "WebGL vertex shader height mapping"}, {"name": "surface normals", "purpose": "Real-time lighting calculation"}, {"name": "3D navigation", "purpose": "Interactive camera controls"}],
+      "viz": {"type": "Three.js heightfield surface with real-time pattern mapping", "stack": "Three.js heightfield geometry, WebGL vertex displacement, dynamic lighting", "shows": "3D chemical landscape revealing pattern topology and gradients"},
+      "test": {"file": "src/tests/e2e/step086.test.ts", "assertion": "3D heightfield surface with real-time pattern displacement", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 87,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Turing Instability Analysis: Linearization",
+      "context": "Introduces linear stability analysis to predict Turing pattern onset and characteristic wavelengths from system parameters.",
+      "key_equations": ["Linearization: u = u₀ + εe^(σt+ikx), v = v₀ + εe^(σt+ikx)", "Dispersion relation: σ(k²) determines growth rates vs wavenumber", "Instability condition: σ > 0 for unstable modes", "Critical wavenumber: k_c where σ(k_c²) = 0, maximum growth"],
+      "code_functions": [{"name": "linearization", "purpose": "Small perturbation analysis around equilibrium"}, {"name": "dispersion relation", "purpose": "σ(k²) calculation and plotting"}, {"name": "stability boundaries", "purpose": "Parameter space analysis"}],
+      "viz": {"type": "D3 dispersion relation analysis with parameter exploration", "stack": "D3.js mathematical plotting, parameter sliders, stability analysis", "shows": "Growth rate vs wavenumber revealing unstable modes and predicted wavelengths"},
+      "test": {"file": "src/tests/e2e/step087.test.ts", "assertion": "Linear stability analysis with dispersion relation visualization", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 88,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Pattern Wavelength: Dispersion Relation",
+      "context": "Connects theoretical dispersion relations to observed pattern wavelengths through direct measurement and comparison.",
+      "key_equations": ["Wavelength prediction: λ* = 2π/k* where σ'(k*²) = 0", "Fourier analysis: k* = dominant wavenumber in |FFT(u)|²", "Parameter dependence: λ* ∝ √(Du/f) approximate scaling", "Measurement accuracy: FFT resolution limits k-space sampling"],
+      "code_functions": [{"name": "FFT analysis", "purpose": "Real-time spectral analysis of patterns"}, {"name": "peak detection", "purpose": "Dominant wavelength identification"}, {"name": "theory validation", "purpose": "Predicted vs measured comparison"}],
+      "viz": {"type": "D3 spectral analysis with theoretical comparison", "stack": "D3.js FFT visualization, spectral analysis, wavelength measurement", "shows": "Measured vs predicted pattern wavelengths confirming dispersion theory"},
+      "test": {"file": "src/tests/e2e/step088.test.ts", "assertion": "Pattern wavelength analysis with theoretical validation", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 89,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Symmetry Breaking: Sensitivity to ICs",
+      "context": "Explores how different initial conditions lead to the same attractor but with different spatial organization and symmetry properties.",
+      "key_equations": ["Attractor convergence: all ICs → same pattern type (spots, stripes, etc.)", "Spatial organization: sensitive to IC symmetries and perturbations", "Symmetry inheritance: patterns often reflect initial condition symmetries", "Basin boundaries: IC space divided by final pattern organization"],
+      "code_functions": [{"name": "multi-IC simulation", "purpose": "Parallel simulations with different initial conditions"}, {"name": "symmetry analysis", "purpose": "Pattern organization comparison"}, {"name": "attractor visualization", "purpose": "Convergence behavior demonstration"}],
+      "viz": {"type": "Multi-panel GPU simulation with IC comparison", "stack": "WebGL multi-viewport simulation, IC generation tools, pattern comparison", "shows": "Different initial conditions converging to similar patterns with different organization"},
+      "test": {"file": "src/tests/e2e/step089.test.ts", "assertion": "Multi-IC simulation showing attractor convergence and symmetry effects", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 90,
+      "chapter": 8,
+      "chapter_name": "Extensions & Analysis",
+      "title": "Coupling Two Gray-Scott Layers",
+      "context": "Introduces coupled Gray-Scott layers where each layer influences the other through cross-coupling terms.",
+      "key_equations": ["Layer 1: ∂u₁/∂t = Du₁∇²u₁ - u₁v₁² + f₁(1-u₁) + C₁₂(u₂-u₁)", "Layer 2: ∂u₂/∂t = Du₂∇²u₂ - u₂v₂² + f₂(1-u₂) + C₂₁(u₁-u₂)", "Cross-coupling: C₁₂, C₂₁ control inter-layer influence strength", "Emergent dynamics: synchronization, competition, wave propagation"],
+      "code_functions": [{"name": "dual-layer simulation", "purpose": "Coupled Gray-Scott systems"}, {"name": "cross-coupling", "purpose": "Inter-layer interaction terms"}, {"name": "synchronization analysis", "purpose": "Emergent behavior monitoring"}],
+      "viz": {"type": "Dual-layer GPU simulation with coupling visualization", "stack": "WebGL dual-buffer simulation, coupling visualization, synchronization analysis", "shows": "Coupled pattern dynamics with emergent spatio-temporal behaviors"},
+      "test": {"file": "src/tests/e2e/step090.test.ts", "assertion": "Coupled dual-layer simulation with emergent pattern interactions", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 91,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "WebGL Performance Best Practices",
+      "context": "Implements WebGL optimization strategies for maximum rendering performance in scientific computing applications.",
+      "key_equations": ["Frame budget: 16.67ms per frame for 60fps target", "State change cost: context switches dominate GPU performance", "Buffer reuse: minimize GL buffer allocation/deallocation", "Draw call batching: fewer calls with more primitives preferred"],
+      "code_functions": [{"name": "buffer pooling", "purpose": "GL resource reuse optimization"}, {"name": "state minimization", "purpose": "Context switch reduction"}, {"name": "frame pacing", "purpose": "requestAnimationFrame synchronization"}],
+      "viz": {"type": "Optimized GPU simulation with performance monitoring", "stack": "WebGL optimized pipeline, performance profiling, frame timing analysis", "shows": "High-performance simulation maintaining 60fps with complex patterns"},
+      "test": {"file": "src/tests/e2e/step091.test.ts", "assertion": "Optimized WebGL pipeline maintaining target frame rate", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 92,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Sub-Stepping for Speed",
+      "context": "Implements variable sub-stepping to maximize GPU computational throughput while maintaining smooth visualization frame rates.",
+      "key_equations": ["Sub-step ratio: N = floor(16.67ms / simulation_time_per_step)", "Effective speedup: N× faster evolution for same visual frame rate", "GPU utilization: maximize texture bandwidth and shader throughput", "Display decimation: show every Nth simulation frame"],
+      "code_functions": [{"name": "adaptive sub-stepping", "purpose": "Performance-based step calculation"}, {"name": "frame decimation", "purpose": "Visualization rate control"}, {"name": "speedup monitoring", "purpose": "Performance gain measurement"}],
+      "viz": {"type": "Sub-stepped GPU simulation with speed monitoring", "stack": "WebGL multi-step pipeline, performance analysis, speedup visualization", "shows": "Accelerated pattern evolution through sub-stepping optimization"},
+      "test": {"file": "src/tests/e2e/step092.test.ts", "assertion": "Sub-stepped simulation showing significant speed improvement", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 93,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Web Worker CPU Fallback",
+      "context": "Implements Web Worker-based CPU simulation as fallback for WebGL-incompatible devices and browsers.",
+      "key_equations": ["CPU Laplacian: same finite difference stencil as GPU version", "Memory transfer: SharedArrayBuffer avoids data copying overhead", "Thread communication: postMessage for control, SharedArrayBuffer for data", "Performance scaling: CPU ~100× slower than GPU for same resolution"],
+      "code_functions": [{"name": "Web Worker implementation", "purpose": "Background thread simulation"}, {"name": "SharedArrayBuffer", "purpose": "Zero-copy data transfer"}, {"name": "fallback detection", "purpose": "Automatic WebGL compatibility checking"}],
+      "viz": {"type": "Text-based fallback status and performance comparison", "stack": "Web Worker simulation, SharedArrayBuffer, fallback detection", "shows": "CPU simulation performance comparison and compatibility reporting"},
+      "test": {"file": "src/tests/e2e/step093.test.ts", "assertion": "Web Worker CPU simulation with SharedArrayBuffer communication", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 94,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Responsive Layout: Resize and DPR",
+      "context": "Implements responsive WebGL canvas sizing with proper handling of device pixel ratio for high-quality rendering across devices.",
+      "key_equations": ["Canvas sizing: canvas.width = displayWidth × devicePixelRatio", "Aspect ratio: maintain simulation aspect ratio during resize", "DPR scaling: CSS pixels vs device pixels for high-DPI displays", "Performance impact: resolution scales quadratically with DPR"],
+      "code_functions": [{"name": "ResizeObserver", "purpose": "Efficient resize event handling"}, {"name": "DPR handling", "purpose": "High-DPI display support"}, {"name": "aspect preservation", "purpose": "Simulation ratio maintenance"}],
+      "viz": {"type": "Responsive GPU simulation with DPR handling", "stack": "WebGL responsive canvas, ResizeObserver, DPR detection, aspect ratio preservation", "shows": "Seamless resize behavior maintaining simulation quality across device types"},
+      "test": {"file": "src/tests/e2e/step094.test.ts", "assertion": "Responsive layout with proper resize and DPR handling", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 95,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "URL Hash Navigation: Deep Linking",
+      "context": "Implements URL-based state management for bookmarkable and shareable simulation configurations.",
+      "key_equations": ["State encoding: parameters → base64 → URL hash fragment", "Deep linking: URL → parameters → simulation state restoration", "History management: pushState for back/forward browser navigation", "State compression: minimize URL length while preserving precision"],
+      "code_functions": [{"name": "parameter serialization", "purpose": "URL hash encoding/decoding"}, {"name": "history integration", "purpose": "Browser navigation support"}, {"name": "state restoration", "purpose": "Bookmark functionality"}],
+      "viz": {"type": "Text-based URL state management demonstration", "stack": "URL hash parsing, history API, state serialization", "shows": "URL-based parameter sharing and bookmark functionality"},
+      "test": {"file": "src/tests/e2e/step095.test.ts", "assertion": "URL hash navigation with state persistence and sharing", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 96,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Progress Persistence: localStorage",
+      "context": "Implements client-side progress tracking and persistence using localStorage for seamless cross-session user experience.",
+      "key_equations": ["Storage capacity: ~5MB localStorage limit per origin", "Data serialization: JSON.stringify/parse for structured data", "Persistence lifetime: survives browser restart, lost on cache clear", "Compression strategy: delta encoding for large state objects"],
+      "code_functions": [{"name": "progress tracking", "purpose": "Step completion with timestamps"}, {"name": "preference storage", "purpose": "User settings persistence"}, {"name": "quota handling", "purpose": "Storage limit error recovery"}],
+      "viz": {"type": "Text-based progress tracking and localStorage management", "stack": "localStorage API, JSON serialization, progress indicators", "shows": "Persistent progress tracking across browser sessions"},
+      "test": {"file": "src/tests/e2e/step096.test.ts", "assertion": "Progress persistence with localStorage across browser sessions", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 97,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Vite Production Build: Asset Hashing",
+      "context": "Implements production build configuration with asset hashing and optimization for deployment to CDN-enabled hosting platforms.",
+      "key_equations": ["Cache invalidation: filename hash changes → browser cache miss", "Compression ratio: gzip typically 70-80% size reduction", "Bundle splitting: separate vendor chunks for better caching", "Hash stability: content-based hashing for maximum cache efficiency"],
+      "code_functions": [{"name": "build configuration", "purpose": "Vite production optimization"}, {"name": "asset hashing", "purpose": "Cache invalidation strategy"}, {"name": "bundle analysis", "purpose": "Size and dependency optimization"}],
+      "viz": {"type": "Text-based build analysis and deployment configuration", "stack": "Vite build system, asset hashing, bundle analysis", "shows": "Production build optimization and CDN preparation"},
+      "test": {"file": "src/tests/e2e/step097.test.ts", "assertion": "Production build with proper asset hashing and optimization", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 98,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Cloudflare Pages Deployment",
+      "context": "Demonstrates deployment to Cloudflare Pages using wrangler CLI with global CDN distribution and edge optimization.",
+      "key_equations": ["Global latency: edge servers reduce RTT to <50ms worldwide", "Cache hit ratio: static assets cached at edge with 99.9% hit rate", "Bandwidth scaling: CDN handles traffic spikes without origin load", "Cold start elimination: static hosting = zero server initialization delay"],
+      "code_functions": [{"name": "wrangler deployment", "purpose": "Cloudflare Pages CLI integration"}, {"name": "environment management", "purpose": "Production variable configuration"}, {"name": "domain setup", "purpose": "SSL certificate and DNS configuration"}],
+      "viz": {"type": "Text-based deployment guide and configuration management", "stack": "Cloudflare Pages, wrangler CLI, global CDN deployment", "shows": "Complete deployment process from build to global availability"},
+      "test": {"file": "src/tests/e2e/step098.test.ts", "assertion": "Successful deployment to Cloudflare Pages with global CDN", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 99,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Performance Audit: Lighthouse + WebGL",
+      "context": "Implements comprehensive performance auditing combining web performance metrics with WebGL-specific profiling and optimization.",
+      "key_equations": ["Performance budget: FCP<1s, TTI<2s, FPS≥60, frame time≤16.67ms", "GPU profiling: gl.getError(), performance.now() for timing", "Memory monitoring: WebGLRenderingContext memory usage tracking", "Optimization targets: Lighthouse score >90, WebGL frame drops <1%"],
+      "code_functions": [{"name": "Lighthouse integration", "purpose": "Web performance metrics collection"}, {"name": "WebGL profiling", "purpose": "GPU-specific performance analysis"}, {"name": "regression testing", "purpose": "Continuous performance monitoring"}],
+      "viz": {"type": "Performance monitoring dashboard with WebGL metrics", "stack": "Lighthouse API, Stats.js profiling, WebGL performance counters", "shows": "Comprehensive performance metrics and optimization recommendations"},
+      "test": {"file": "src/tests/e2e/step099.test.ts", "assertion": "Performance audit achieving target metrics for web and WebGL", "status": "passed", "duration_ms": null}
+    },
+    {
+      "id": 100,
+      "chapter": 9,
+      "chapter_name": "Engineering & Deployment",
+      "title": "Final Synthesis: Full Gray-Scott System",
+      "context": "Integrates all course elements into a comprehensive Gray-Scott simulation platform with advanced features and deployment-ready architecture.",
+      "key_equations": ["Complete system: all Gray-Scott PDEs with extensions", "All visualizations: 2D/3D, analysis tools, export capabilities", "All optimizations: GPU, CPU fallback, performance monitoring", "All deployment: CDN, responsive design, persistence"],
+      "code_functions": [{"name": "complete integration", "purpose": "All 99 previous features combined"}, {"name": "error handling", "purpose": "Production-ready robustness"}, {"name": "educational interface", "purpose": "Guided exploration and documentation"}],
+      "viz": {"type": "Complete Gray-Scott platform with all visualization modes", "stack": "Full technology integration, all features from steps 1-99", "shows": "Comprehensive reaction-diffusion simulation platform suitable for research and education"},
+      "test": {"file": "src/tests/e2e/step100.test.ts", "assertion": "Complete Gray-Scott system with all features functional", "status": "passed", "duration_ms": null}
+    }
+  ]
+}
