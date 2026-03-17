@@ -24,6 +24,7 @@ At 512×512: ~20ms/step → 160ms → 6fps. GPU achieves 60fps at 512×512.</p><
 
   init(container, state) {
     const div = document.createElement('div')
+    div.id = 'text-panel'
     div.style.cssText = 'padding:20px; font-family:SF Mono,monospace; font-size:10pt; overflow-y:auto; height:100%'
     div.innerHTML = '<pre style="border:none;background:none">Step 30: CPU Performance: Why We Need the GPU</pre>'
     container.appendChild(div)

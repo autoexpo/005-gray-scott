@@ -24,6 +24,7 @@ different behavior at the domain edges. Most simulations use periodic for visual
 
   init(container, state) {
     const div = document.createElement('div')
+    div.id = 'text-panel'
     div.style.cssText = 'padding:20px; font-family:SF Mono,monospace; font-size:10pt; overflow-y:auto; height:100%'
     div.innerHTML = '<pre style="border:none;background:none">Step 29: Boundary Conditions in 2D</pre>'
     container.appendChild(div)
