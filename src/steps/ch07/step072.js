@@ -10,7 +10,9 @@ export default {
 
   math: `<div class="math-section"><h3>Instability from Large dt</h3>
 <p>When dt exceeds the stability limit, the simulation "blows up" — values oscillate
-wildly and quickly hit NaN. This demo sets dt=3.0 to show the blow-up phenomenon.</p></div>`,
+wildly and quickly hit NaN. This demo sets dt=3.0 to show the blow-up phenomenon.</p>
+<p><strong>CFL limit:</strong> dt ≤ h²/(2D) ≈ 1.19 for our parameters. dt=3.0 > 1.19 → unstable.</p>
+<p><strong>Expected behavior:</strong> Canvas turns uniform gray within ~20 frames (NaN clamps to 0).</p></div>`,
 
   code: `<div class="code-section"><h3>Step 72 Code</h3>
 <pre><code class="language-js">// See the source files for this step's implementation.
@@ -25,7 +27,7 @@ wildly and quickly hit NaN. This demo sets dt=3.0 to show the blow-up phenomenon
 
   init(container, state) {
     return startGPULoop(container, {
-      params: { ...PRESETS['spots'] },
+      params: { ...PRESETS['spots'], dt: 3.0 },  // Override dt to unstable value
       size: 256,
       stepsPerFrame: 8,
       vizMode: 'invert',

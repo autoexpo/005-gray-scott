@@ -24,11 +24,53 @@ fine grid captures small-scale pattern detail. Downsampling/upsampling links the
 </code></pre></div>`,
 
   init(container, state) {
-    return startGPULoop(container, {
-      params: { ...PRESETS['spots'] },
-      size: 256,
+    // Create side-by-side layout
+    const wrapper = document.createElement('div')
+    wrapper.style.cssText = 'display: flex; gap: 20px; justify-content: center; align-items: flex-start'
+    container.appendChild(wrapper)
+
+    const leftDiv = document.createElement('div')
+    leftDiv.style.cssText = 'text-align: center'
+    const rightDiv = document.createElement('div')
+    rightDiv.style.cssText = 'text-align: center'
+
+    wrapper.appendChild(leftDiv)
+    wrapper.appendChild(rightDiv)
+
+    // Labels
+    const leftLabel = document.createElement('div')
+    leftLabel.textContent = 'Coarse (128²)'
+    leftLabel.style.cssText = 'font-family: SF Mono, monospace; font-size: 10pt; margin-bottom: 5px; font-weight: bold'
+    leftDiv.appendChild(leftLabel)
+
+    const rightLabel = document.createElement('div')
+    rightLabel.textContent = 'Fine (512²)'
+    rightLabel.style.cssText = 'font-family: SF Mono, monospace; font-size: 10pt; margin-bottom: 5px; font-weight: bold'
+    rightDiv.appendChild(rightLabel)
+
+    // Two GPU simulations at different scales
+    const coarseCleanup = startGPULoop(leftDiv, {
+      params: { ...PRESETS['mitosis'] },
+      size: 128,  // Coarse resolution
       stepsPerFrame: 8,
       vizMode: 'invert',
+      showGui: false,
+      showStats: false,
     })
+
+    const fineCleanup = startGPULoop(rightDiv, {
+      params: { ...PRESETS['mitosis'] },
+      size: 512,  // Fine resolution
+      stepsPerFrame: 8,
+      vizMode: 'invert',
+      showGui: false,
+      showStats: false,
+    })
+
+    return () => {
+      coarseCleanup()
+      fineCleanup()
+      container.innerHTML = ''
+    }
   }
 }
